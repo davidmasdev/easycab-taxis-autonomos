@@ -8,8 +8,9 @@ Python, Pygame, SQLite, Kafka.
 
 Hay un mapa de 20x20 posiciones (Matriz 2D)
 
-![[Pasted image 20250410161023.png]]
-Habrán taxis representados por un ID y estado dependiedno del color.
+![Screenshot from 2025-04-10 16-10-20](https://github.com/user-attachments/assets/5faec367-b213-4c3a-b7a4-f4bd9d90a7b8)
+
+Habrán taxis representados por un ID y estado dependiendo del color.
 
 Habrán Customers que pueden solicitar un servicio (ID=Letra minúscula).
 
@@ -23,17 +24,17 @@ Los clientes podrán solicitar un servicio desde su aplicacion (Para automatizar
 
 # Estructura
 
-## EC_Central.py
+### EC_Central.py
 
-### Parámetros
+#### Parámetros
 Puerto de escucha, IP y puerto del Broker, IP y puerto de BD.
 
-### Funcionamiento
+#### Funcionamiento
 Al ejecutar el .py se mostrará un mapa de 20x20 recogido de un fichero con los taxis (BD) en pygame y cada movimiento del taxi se actualizará.
 
-### Base de datos
+#### Base de datos
 Contendra ID, estado y posición (SQLite).
 
-## EC_DE.py y EC_S.py
+### EC_DE.py y EC_S.py
 
-## EC_Customer.py
+### EC_Customer.py
