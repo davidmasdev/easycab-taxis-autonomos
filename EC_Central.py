@@ -1,11 +1,11 @@
 import pygame
 import sys
-
+import sqlite3
 
 # Params
 listenPort = sys.argv[1]
 dataBroker = sys.argv[2]
-portDB = sys.argv[3]
+database = sys.argv[3]
 locationParam = sys.argv[4]
 
 # Locations treatment
@@ -17,6 +17,14 @@ for location in unformatedLocations:
     newLocation = location.split("|")
     locations.append([newLocation[0], [newLocation[1], newLocation[2]]])
 
+# Database treatment
+con = sqlite3.connect(database)
+cur = con.cursor()
+
+res = cur.execute("Select * from taxi")
+taxis = res.fetchall()
+
+# Grid treatment
 grid = []
 locationFound = False
 
@@ -28,6 +36,9 @@ for row in range(20):
             if(location[1] == [str(row), str(column)]):
                 grid[row].append(location[0])
                 locationFound = True
+        for taxi in taxis:
+            if([taxi[2], taxi[3]] == [row, column]):
+                grid[row].append(taxi[0])
         if(locationFound == False):
             grid[row].append(0)
 
@@ -55,7 +66,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("black")
+    screen.fill("grey")
 
     # RENDER YOUR GAME HERE
     for row in range(20):
@@ -67,13 +78,17 @@ while running:
 
             color = "white"
             if (grid[row][column] != 0):
-                color = "blue"
+                if (isinstance(grid[row][column], int)):
+                    color = "green"
+                else:
+                    color = "light blue"
             pygame.draw.rect(screen, color, rect)
 
             if (grid[row][column] != 0):
-                text_surface = font.render(grid[row][column], True, "white")
+                text_surface = font.render(str(grid[row][column]), True, "black")
                 text_rect = text_surface.get_rect(center=rect.center)
                 screen.blit(text_surface, text_rect)
+
     # flip() the display to put your work on screen
     pygame.display.flip()
 
