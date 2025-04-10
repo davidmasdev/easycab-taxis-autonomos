@@ -1,7 +1,6 @@
 import pygame
 import sys
 
-from pygame.constants import WINDOWHITTEST
 
 # Params
 listenPort = sys.argv[1]
