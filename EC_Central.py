@@ -1,6 +1,9 @@
 import pygame
 import sys
 import sqlite3
+from kafka import KafkaConsumer
+
+
 
 # Params
 listenPort = sys.argv[1]
@@ -23,6 +26,7 @@ cur = con.cursor()
 
 res = cur.execute("Select * from taxi")
 taxis = res.fetchall()
+con.close()
 
 # Grid treatment
 grid = []
@@ -58,6 +62,12 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True
 
+consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+consumer.subscribe(['msgtest'])
+
+customers = []
+asciiChar = 97
+
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
@@ -67,6 +77,17 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
+
+
+    for msg in consumer:
+        print(msg)
+        messageSplit = msg.value.decode().split(' ')
+        if(messageSplit[0] == 'servicio'):
+            print(f'Created customer {chr(asciiChar)} with destination {messageSplit[1]}')
+            customers.append([chr(asciiChar), messageSplit[1]])
+            asciiChar =+ 1
+
+
 
     # RENDER YOUR GAME HERE
     for row in range(20):
