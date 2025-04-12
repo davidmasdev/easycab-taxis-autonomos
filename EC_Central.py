@@ -4,7 +4,6 @@ import sqlite3
 from kafka import KafkaConsumer
 import random
 
-
 # Params
 listenPort = sys.argv[1]
 dataBroker = sys.argv[2]
@@ -23,10 +22,8 @@ for location in unformatedLocations:
 # Database treatment
 con = sqlite3.connect(database)
 cur = con.cursor()
-
 res = cur.execute("Select * from taxi")
 taxis = res.fetchall()
-con.close()
 
 # Grid treatment
 grid = []
@@ -78,6 +75,11 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
 
+    # Get taxis from db
+    res = cur.execute("Select * from taxi")
+    taxis = res.fetchall()
+
+
     msg = consumer.poll(timeout_ms=100)
 
     if msg:
@@ -97,7 +99,10 @@ while running:
                         if customer[0] == messageSplit[3]:
                             customer[1] = messageSplit[1]
                             print(f'Assigned service {customer[1]} to Customer {customer[0]}')
-
+                            for taxi in taxis:
+                                if(taxi[4] == '' and taxi[2] == 'Ok'): # TODO: Cambiar en un futuro
+                                    cur.execute('update taxi set destino = ?, estado = ? where id = ?', (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
+                                    print(f'Customer {customer[0]} with service to {customer[1]} assigned to taxi {taxi[0]}')
 
     # RENDER YOUR GAME HERE
     for row in range(20):
@@ -128,4 +133,5 @@ while running:
     clock.tick(60)  # limits FPS to 60
 
 pygame.quit()
+con.close()
 consumer.close()
