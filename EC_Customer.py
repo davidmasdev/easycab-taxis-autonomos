@@ -19,9 +19,10 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True
 
+# Kafka Producer
 producer = KafkaProducer(bootstrap_servers='localhost:9092')
 nextService = True
-i = 0
+numService = 0
 
 while running:
     # poll for events
@@ -38,7 +39,9 @@ while running:
     screen.blit(text_surface, (0, 0))
 
     if(nextService):
-        producer.send('msgtest', (f"servicio {servicios[i]}").encode())
+        if(numService==0):
+            producer.send('customerCentral', (f'create customer {idCustomer}').encode())
+        producer.send('customerCentral', (f"service {servicios[numService]} customer {idCustomer}").encode())
         nextService = False
         i=+1
 

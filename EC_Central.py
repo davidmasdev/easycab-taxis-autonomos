@@ -2,7 +2,7 @@ import pygame
 import sys
 import sqlite3
 from kafka import KafkaConsumer
-
+import random
 
 
 # Params
@@ -62,11 +62,11 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True
 
+# Kafka Consumer
 consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
-consumer.subscribe(['msgtest'])
+consumer.subscribe(['customerCentral'])
 
 customers = []
-asciiChar = 97
 
 while running:
     # poll for events
@@ -78,15 +78,25 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
 
+    msg = consumer.poll(timeout_ms=100)
 
-    for msg in consumer:
-        print(msg)
-        messageSplit = msg.value.decode().split(' ')
-        if(messageSplit[0] == 'servicio'):
-            print(f'Created customer {chr(asciiChar)} with destination {messageSplit[1]}')
-            customers.append([chr(asciiChar), messageSplit[1]])
-            asciiChar =+ 1
+    if msg:
+        for tp, records in msg.items():
+            for record in records:
+                print(record )
+                messageSplit = record.value.decode().split(' ')
+                if(messageSplit[0] == 'create'):
+                    posX = random.choice([x for x in range(20) if x not in [subarray[1][0] for subarray in locations]])
+                    posY = random.choice([y for y in range(20) if y not in [subarray[1][1] for subarray in locations]])
+                    customers.append([messageSplit[2], '', [posX, posY]])
+                    grid[posX][posY] = messageSplit[2]
+                    print(f'Created customer {messageSplit[2]} in position {[posX, posY]}')
 
+                if(messageSplit[0] == 'service'):
+                    for customer in customers:
+                        if customer[0] == messageSplit[3]:
+                            customer[1] = messageSplit[1]
+                            print(f'Assigned service {customer[1]} to Customer {customer[0]}')
 
 
     # RENDER YOUR GAME HERE
@@ -101,6 +111,8 @@ while running:
             if (grid[row][column] != 0):
                 if (isinstance(grid[row][column], int)):
                     color = "green"
+                elif (grid[row][column].islower()):
+                    color = "yellow"
                 else:
                     color = "light blue"
             pygame.draw.rect(screen, color, rect)
@@ -116,3 +128,4 @@ while running:
     clock.tick(60)  # limits FPS to 60
 
 pygame.quit()
+consumer.close()
