@@ -22,27 +22,6 @@ for location in unformatedLocations:
 # Database treatment
 con = sqlite3.connect(database)
 cur = con.cursor()
-res = cur.execute("Select * from taxi")
-taxis = res.fetchall()
-
-# Grid treatment
-grid = []
-locationFound = False
-
-for row in range(20):
-    grid.append([])
-    for column in range(20):
-        locationFound = False
-        for location in locations:
-            if(location[1] == [str(row), str(column)]):
-                grid[row].append(location[0])
-                locationFound = True
-        for taxi in taxis:
-            if([taxi[2], taxi[3]] == [row, column]):
-                grid[row].append(taxi[0])
-        if(locationFound == False):
-            grid[row].append(0)
-
 
 # This sets the WIDTH and HEIGHT of each grid location
 WIDTH = 20
@@ -79,6 +58,23 @@ while running:
     res = cur.execute("Select * from taxi")
     taxis = res.fetchall()
 
+    # Grid treatment
+    grid = []
+    locationFound = False
+
+    for row in range(20):
+        grid.append([])
+        for column in range(20):
+            locationFound = False
+            for location in locations:
+                if(location[1] == [str(row), str(column)]):
+                    grid[row].append(location[0])
+                    locationFound = True
+            for taxi in taxis:
+                if([taxi[2], taxi[3]] == [row, column]):
+                    grid[row].append(taxi[0])
+            if(locationFound == False):
+                grid[row].append(0)
 
     msg = consumer.poll(timeout_ms=100)
 
