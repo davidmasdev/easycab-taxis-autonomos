@@ -1,6 +1,7 @@
 import sys
 import socket
 from kafka import KafkaConsumer, KafkaProducer
+import pygame
 
 ipPortCentral = sys.argv[1]
 ipPortBroker = sys.argv[2]
@@ -15,3 +16,73 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.sendall(f"{idTaxi}".encode())
     data = s.recv(1024)
     print(f"Received {data.decode()} from Central")
+
+# # Kafka Producer
+# producer = KafkaProducer(bootstrap_servers='localhost:9092')
+
+# Kafka Consumer
+consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+consumer.subscribe(['centralTaxi'])
+
+# This sets the WIDTH and HEIGHT of each grid location
+WIDTH = 20
+HEIGHT = 20
+
+# This sets the margin between each cell
+MARGIN = 5
+
+# pygame setup
+pygame.init()
+screen = pygame.display.set_mode((1280, 720))
+pygame.display.set_caption(f'EasyCab | EC_DE Taxi {idTaxi}')
+clock = pygame.time.Clock()
+font = pygame.font.SysFont('arial', 24)
+running = True
+
+grid = []
+
+while running:
+    # pygame.QUIT event means the user clicked X to close your window
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    msg = consumer.poll(timeout_ms=100)
+
+    if msg:
+        for tp, records in msg.items():
+            for record in records:
+                message = record.value.decode()
+                if(message.strip().startswith('grid')):
+                    grid = eval(message.strip()[5:])
+
+    # RENDER YOUR GAME HERE
+    if grid != []:
+        for row in range(20):
+            for column in range(20):
+                rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN,
+                                    (MARGIN + HEIGHT) * row + MARGIN,
+                                    WIDTH,
+                                    HEIGHT])
+
+                color = "white"
+                if (grid[row][column] != 0):
+                    if (isinstance(grid[row][column], int)):
+                        color = "green"
+                    elif (grid[row][column].islower()):
+                        color = "yellow"
+                    else:
+                        color = "light blue"
+                pygame.draw.rect(screen, color, rect)
+                if (grid[row][column] != 0):
+                    text_surface = font.render(str(grid[row][column]), True, "black")
+                    text_rect = text_surface.get_rect(center=rect.center)
+                    screen.blit(text_surface, text_rect)
+
+    # flip() the display to put
+    #  your work on screen
+    pygame.display.flip()
+
+    clock.tick(60)  # limits FPS to 60
+
+    # producer.send('taxiCentral', (f'').encode())

@@ -39,9 +39,14 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True
 
+# Kafka Producer
+producer = KafkaProducer(bootstrap_servers='localhost:9092')
+
+producer.send('taxiCentral', (f'').encode())
+
 # Kafka Consumer
 consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
-consumer.subscribe(['customerCentral'])
+consumer.subscribe(['customerCentral', 'taxiCentral'])
 
 customers = []
 
@@ -105,24 +110,27 @@ while running:
     if msg:
         for tp, records in msg.items():
             for record in records:
-                print(record )
+                print(record)
                 messageSplit = record.value.decode().split(' ')
                 if(messageSplit[0] == 'create'):
                     posX = random.choice([x for x in range(20) if x not in [subarray[1][0] for subarray in locations]])
                     posY = random.choice([y for y in range(20) if y not in [subarray[1][1] for subarray in locations]])
                     customers.append([messageSplit[2], '', [posX, posY]])
                     grid[posX][posY] = messageSplit[2]
-                    print(f'Created customer {messageSplit[2]} in position {[posX, posY]}')
+                    print(f'Creado customer {messageSplit[2]} en posición {[posX, posY]}')
 
                 if(messageSplit[0] == 'service'):
                     for customer in customers:
                         if customer[0] == messageSplit[3]:
                             customer[1] = messageSplit[1]
-                            print(f'Assigned service {customer[1]} to Customer {customer[0]}')
+                            print(f'Asignado servicio {customer[1]} al Customer {customer[0]}')
                             for taxi in taxis:
                                 if(taxi[4] == '' and taxi[2] == 'Ok'): # TODO: Cambiar en un futuro
                                     cur.execute('update taxi set destino = ?, estado = ? where id = ?', (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
-                                    print(f'Customer {customer[0]} with service to {customer[1]} assigned to taxi {taxi[0]}')
+                                    producer.send('centralTaxi', (f'update taxi {taxi[0]} {customer[1]}').encode())
+                                    print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
+
+    producer.send('centralTaxi', (f'grid {str(grid)}').encode())
 
     # RENDER YOUR GAME HERE
     for row in range(20):
