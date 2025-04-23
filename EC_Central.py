@@ -1,8 +1,9 @@
 import pygame
 import sys
 import sqlite3
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, KafkaProducer
 import random
+import socket
 
 # Params
 listenPort = sys.argv[1]
@@ -44,6 +45,13 @@ consumer.subscribe(['customerCentral'])
 
 customers = []
 
+# Socket creation
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('127.0.0.1', int(listenPort)))
+s.listen(1)
+s.setblocking(0)
+
+# Game loop
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
@@ -57,6 +65,22 @@ while running:
     # Get taxis from db
     res = cur.execute("Select * from taxi")
     taxis = res.fetchall()
+
+    # Get taxis from socket connection
+    try:
+        conn, addr = s.accept()
+        conn.setblocking(0)
+        while True:
+            data = conn.recv(1024).decode()
+            if not data:
+                break
+            for taxi in taxis:
+                if str(taxi[0]) == data:
+                    print(f"Taxi {data} autenticado y operativo")
+                    conn.sendall(("Taxi autenticado").encode())            
+        conn.close()
+    except BlockingIOError:
+        pass
 
     # Grid treatment
     grid = []
