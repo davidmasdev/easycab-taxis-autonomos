@@ -79,7 +79,7 @@ while running:
                 color = "white"
                 if (grid[row][column] != 0):
                     if (isinstance(grid[row][column], int)):
-                        if (grid[row][column] == idTaxi):
+                        if (grid[row][column] == int(idTaxi)):
                             position = [row, column]
                         color = "green"
                     elif (grid[row][column].islower()):
@@ -96,19 +96,25 @@ while running:
                     text_rect = text_surface.get_rect(center=rect.center)
                     screen.blit(text_surface, text_rect)
 
+    print(f"position {position} clientPosition {clientPosition} destinationPosition {destinationPosition}")
+    if position != clientPosition and position != [] and clientPosition != []:
+        print(f"Taxi {idTaxi} moviendo a {client} hacia {destination}")
+        if position[0] < clientPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[0] > clientPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
+        elif position[1] < clientPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] > clientPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode()) 
+
     # flip() the display to put
     #  your work on screen
     pygame.display.flip()
 
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(1)
 
 
-    if position != clientPosition and position != []:
-        if position[0] < clientPosition[0]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
-        elif position[0] > clientPosition[0]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
-        elif position[1] < clientPosition[1]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
-        elif position[1] > clientPosition[1]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode()) 
+consumer.close()
+pygame.quit()
+

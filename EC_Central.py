@@ -58,28 +58,6 @@ s.bind(('127.0.0.1', int(listenPort)))
 s.listen(1)
 s.setblocking(0)
 
-# Grid treatment
-grid = []
-locationFound = False
-
-# Get taxis from db
-res = cur.execute("Select * from taxis")
-taxis = res.fetchall()
-
-for row in range(20):
-    grid.append([])
-    for column in range(20):
-        locationFound = False
-        for location in locations:
-            if(location[1] == [str(row), str(column)]):
-                grid[row].append(location[0])
-                locationFound = True
-        for taxi in taxis:
-            if([taxi[2], taxi[3]] == [row, column]):
-                grid[row].append(taxi[0])
-        if(locationFound == False):
-            grid[row].append(0)
-
 # Game loop
 while running:
     # poll for events
@@ -111,13 +89,34 @@ while running:
     except BlockingIOError:
         pass
 
+    # Grid treatment
+    grid = []
+    locationFound = False
+
+    for row in range(20):
+        grid.append([])
+        for column in range(20):
+            locationFound = False
+            for location in locations:
+                if(location[1] == [str(row), str(column)]):
+                    grid[row].append(location[0])
+                    locationFound = True
+            for taxi in taxis:
+                if([taxi[2], taxi[3]] == [row, column]):
+                    grid[row].append(taxi[0])
+            for customer in customers:
+                if(customer[2] == [row, column]):
+                    grid[row].append(customer[0])
+            if(locationFound == False):
+                grid[row].append(0)
 
     msg = consumer.poll(timeout_ms=100)
 
     if msg:
         for tp, records in msg.items():
             for record in records:
-                print(record)
+                # print(record)
+                message = record.value.decode()
                 messageSplit = record.value.decode().split(' ')
                 if(messageSplit[0] == 'create'):
                     posX = random.choice([x for x in range(20) if x not in [subarray[1][0] for subarray in locations]])
@@ -140,8 +139,10 @@ while running:
                 
                 if(messageSplit[0] == 'mover'):
                     for taxi in taxis:
-                        if taxi[0] == messageSplit[1]:
-                            cur.execute('update taxis set posX = ?, posY = ? where id = ?', (messageSplit[2][0], messageSplit[2][1], taxi[0]))
+                        if str(taxi[0]) == messageSplit[1]:
+                            newPos = eval(message[message.find('['):message.find(']')+1])
+                            print(newPos[0], newPos[1])
+                            cur.execute('update taxis set posX = ?, posY = ? where id = ?', (newPos[0], newPos[1], taxi[0]))
                             # grid[int(messageSplit[2])][int(messageSplit[3])] = taxi[0]
                             # grid[int(taxi[2])][int(taxi[3])] = 0
                             # print(f'Taxi {taxi[0]} movido a {messageSplit[2]}, {messageSplit[3]}')
@@ -149,8 +150,6 @@ while running:
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
 
-
-    print(grid)
     # RENDER YOUR GAME HERE
     for row in range(20):
         for column in range(20):
