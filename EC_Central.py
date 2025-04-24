@@ -93,22 +93,22 @@ while running:
     grid = []
     locationFound = False
 
+    grid = [[0 for _ in range(20)] for _ in range(20)]
+
     for row in range(20):
-        grid.append([])
         for column in range(20):
-            locationFound = False
             for location in locations:
-                if(location[1] == [str(row), str(column)]):
-                    grid[row].append(location[0])
-                    locationFound = True
+                if location[1] == [str(row), str(column)]:
+                    grid[row][column] = location[0]
             for taxi in taxis:
-                if([taxi[2], taxi[3]] == [row, column]):
-                    grid[row].append(taxi[0])
+                if [taxi[2], taxi[3]] == [row, column]:
+                    grid[row][column] = taxi[0]
             for customer in customers:
-                if(customer[2] == [row, column]):
-                    grid[row].append(customer[0])
-            if(locationFound == False):
-                grid[row].append(0)
+                if customer[2] == [row, column]:
+                    if isinstance(grid[row][column], int) and grid[row][column] != 0:
+                        grid[row][column] = str(grid[row][column]) + customer[0]
+                    else:
+                        grid[row][column] = customer[0]
 
     msg = consumer.poll(timeout_ms=100)
 
@@ -149,7 +149,7 @@ while running:
                             # producer.send('centralTaxi', (f'mover {taxi[0]} {messageSplit[2]} {messageSplit[3]}').encode())
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
-
+    
     # RENDER YOUR GAME HERE
     for row in range(20):
         for column in range(20):
@@ -176,7 +176,7 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(60)
 
 con.execute('drop table taxis')
 pygame.quit()
