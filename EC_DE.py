@@ -40,8 +40,8 @@ font = pygame.font.SysFont('arial', 24)
 running = True
 
 grid = []
-client = ''
-clientPosition = []
+customer = ''
+customerPosition = []
 destination = []
 destinationPosition = []
 position = []
@@ -62,8 +62,8 @@ while running:
                 if(message.strip().startswith('grid')):
                     grid = eval(message.strip()[5:])
                 if(messageSplit[0] == 'asignar' and messageSplit[1] == str(idTaxi)):
-                    client = messageSplit[3]
-                    print(client)
+                    customer = messageSplit[3]
+                    print(customer)
                     destination = messageSplit[5]
                     print(destination)
                    
@@ -82,9 +82,13 @@ while running:
                         if (grid[row][column] == int(idTaxi)):
                             position = [row, column]
                         color = "green"
+                    elif grid[row][column][0] == str(idTaxi) and grid[row][column][1] == customer:
+                        position = [row, column]
+                        customerPosition = [row, column]
+                        color = "green"
                     elif (grid[row][column].islower()):
-                        if (grid[row][column] == client):
-                            clientPosition = [row, column]
+                        if (grid[row][column] == customer):
+                            customerPosition = [row, column]
                         color = "yellow"
                     else:
                         if (grid[row][column] == destination):
@@ -96,17 +100,29 @@ while running:
                     text_rect = text_surface.get_rect(center=rect.center)
                     screen.blit(text_surface, text_rect)
 
-    print(f"position {position} clientPosition {clientPosition} destinationPosition {destinationPosition}")
-    if position != clientPosition and position != [] and clientPosition != []:
-        print(f"Taxi {idTaxi} moviendo a {client} hacia {destination}")
-        if position[0] < clientPosition[0]:
+    print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
+    if position != customerPosition and position != [] and customerPosition != []:
+        print(f"Taxi {idTaxi} recogiendo a {customer}")
+        if position[0] < customerPosition[0]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
-        elif position[0] > clientPosition[0]:
+        elif position[0] > customerPosition[0]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
-        elif position[1] < clientPosition[1]:
+        elif position[1] < customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
-        elif position[1] > clientPosition[1]:
+        elif position[1] > customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode()) 
+
+    if position == customerPosition and position != destinationPosition:
+        print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
+        if position[0] < destinationPosition[0]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[0] > destinationPosition[0]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]]}').encode())
+        elif position[1] < destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] > destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}').encode())
+
 
     # flip() the display to put
     #  your work on screen

@@ -139,7 +139,17 @@ while running:
                 
                 if(messageSplit[0] == 'mover'):
                     for taxi in taxis:
-                        if str(taxi[0]) == messageSplit[1]:
+                        print(messageSplit)
+                        if messageSplit[1] == 'juntos' and str(taxi[0]) == messageSplit[3]:
+                            newPos = eval(message[message.find('['):message.find(']')+1])
+                            print(newPos[0], newPos[1])
+                            cur.execute('update taxis set posX = ?, posY = ? where id = ?', (newPos[0], newPos[1], taxi[0]))
+                            for customer in customers:
+                                if customer[0] == messageSplit[2]:
+                                    customer[2] = [newPos[0], newPos[1]]
+                                    print(f'Customer {customer[0]} moved to position {newPos}')
+
+                        elif str(taxi[0]) == messageSplit[1]:
                             newPos = eval(message[message.find('['):message.find(']')+1])
                             print(newPos[0], newPos[1])
                             cur.execute('update taxis set posX = ?, posY = ? where id = ?', (newPos[0], newPos[1], taxi[0]))
