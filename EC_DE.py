@@ -18,7 +18,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print(f"Received {data.decode()} from Central")
 
 # # Kafka Producer
-# producer = KafkaProducer(bootstrap_servers='localhost:9092')
+producer = KafkaProducer(bootstrap_servers='localhost:9092')
 
 # Kafka Consumer
 consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
@@ -40,6 +40,11 @@ font = pygame.font.SysFont('arial', 24)
 running = True
 
 grid = []
+client = ''
+clientPosition = []
+destination = []
+destinationPosition = []
+position = []
 
 while running:
     # pygame.QUIT event means the user clicked X to close your window
@@ -53,9 +58,15 @@ while running:
         for tp, records in msg.items():
             for record in records:
                 message = record.value.decode()
+                messageSplit = message.split(" ")
                 if(message.strip().startswith('grid')):
                     grid = eval(message.strip()[5:])
-
+                if(messageSplit[0] == 'asignar' and messageSplit[1] == str(idTaxi)):
+                    client = messageSplit[3]
+                    print(client)
+                    destination = messageSplit[5]
+                    print(destination)
+                   
     # RENDER YOUR GAME HERE
     if grid != []:
         for row in range(20):
@@ -68,10 +79,16 @@ while running:
                 color = "white"
                 if (grid[row][column] != 0):
                     if (isinstance(grid[row][column], int)):
+                        if (grid[row][column] == idTaxi):
+                            position = [row, column]
                         color = "green"
                     elif (grid[row][column].islower()):
+                        if (grid[row][column] == client):
+                            clientPosition = [row, column]
                         color = "yellow"
                     else:
+                        if (grid[row][column] == destination):
+                            destinationPosition = [row, column]
                         color = "light blue"
                 pygame.draw.rect(screen, color, rect)
                 if (grid[row][column] != 0):
@@ -85,4 +102,13 @@ while running:
 
     clock.tick(60)  # limits FPS to 60
 
-    # producer.send('taxiCentral', (f'').encode())
+
+    if position != clientPosition and position != []:
+        if position[0] < clientPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
+        elif position[0] > clientPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] < clientPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[1] > clientPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode()) 
