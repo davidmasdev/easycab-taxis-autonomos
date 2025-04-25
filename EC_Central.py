@@ -153,10 +153,14 @@ while running:
                             newPos = eval(message[message.find('['):message.find(']')+1])
                             print(newPos[0], newPos[1])
                             cur.execute('update taxis set posX = ?, posY = ? where id = ?', (newPos[0], newPos[1], taxi[0]))
-                            # grid[int(messageSplit[2])][int(messageSplit[3])] = taxi[0]
-                            # grid[int(taxi[2])][int(taxi[3])] = 0
-                            # print(f'Taxi {taxi[0]} movido a {messageSplit[2]}, {messageSplit[3]}')
-                            # producer.send('centralTaxi', (f'mover {taxi[0]} {messageSplit[2]} {messageSplit[3]}').encode())
+                
+                if(messageSplit[0] == 'terminado'):
+                    producer.send('centralCustomer', (f'servicio terminado {messageSplit[1]} {messageSplit[2]}').encode())
+                    cur.execute('update taxis set estado = ?, destino = ? where id = ?', ('Ok', '', messageSplit[3]))
+                    for customer in customers:
+                        if customer[0] == messageSplit[1]:
+                            customer[1] = ''
+                            print(f'Servicio {messageSplit[1]} terminado')
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
     

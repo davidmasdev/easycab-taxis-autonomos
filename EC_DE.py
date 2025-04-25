@@ -46,6 +46,8 @@ destination = []
 destinationPosition = []
 position = []
 
+nextService = False
+
 while running:
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -66,6 +68,7 @@ while running:
                     print(customer)
                     destination = messageSplit[5]
                     print(destination)
+                    nextService = True
                    
     # RENDER YOUR GAME HERE
     if grid != []:
@@ -123,6 +126,14 @@ while running:
         elif position[1] > destinationPosition[1]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}').encode())
 
+    if position == destinationPosition and position != [] and position == customerPosition:
+        producer.send('taxiCentral', (f'terminado {customer} {destination} {idTaxi}').encode())
+        nextService = False
+        customer = ''
+        destination = ''
+        customerPosition = []
+        destinationPosition = []
+        print(f"Taxi {idTaxi} dejando a {customer} en {destination}")
 
     # flip() the display to put
     #  your work on screen

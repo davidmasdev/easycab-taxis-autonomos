@@ -1,14 +1,13 @@
 import sys
 import pygame
-from kafka import KafkaProducer
-import base64
-
+from kafka import KafkaProducer, KafkaConsumer
+import time
 
 dataBroker = sys.argv[1]
 idCustomer = sys.argv[2]
 
 f = open("servicios.txt")
-servicios = f.read()
+servicios = f.read().splitlines()
 
 # pygame setup
 pygame.init()
@@ -24,12 +23,21 @@ producer = KafkaProducer(bootstrap_servers='localhost:9092')
 nextService = True
 numService = 0
 
+# Kafka Consumer
+consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+consumer.subscribe(['centralCustomer'])
+
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+    if(numService==len(servicios)):
+        print("Todos los servicios han sido solicitados")
+        pygame.quit()
+        break
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("white")
@@ -38,16 +46,31 @@ while running:
 
     screen.blit(text_surface, (0, 0))
 
+    msg = consumer.poll(timeout_ms=100)
+
+    if msg:
+        for tp, records in msg.items():
+            for record in records:
+                # print(record)
+                message = record.value.decode()
+                messageSplit = record.value.decode().split(' ')
+                if(messageSplit[0] == 'servicio' and messageSplit[1] == 'terminado' and messageSplit[2] == str(idCustomer)):
+                    print(f"Servicio {messageSplit[3]} terminado")
+                    nextService = True
+
     if(nextService):
         if(numService==0):
             producer.send('customerCentral', (f'create customer {idCustomer}').encode())
+        time.sleep(4)
         producer.send('customerCentral', (f"service {servicios[numService]} customer {idCustomer}").encode())
+        print(f"Servicio {servicios[numService]} solicitado")
+        numService += 1
         nextService = False
-        i=+1
+    
 
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(1)  # limits FPS to 60
 
 pygame.quit()
