@@ -35,7 +35,7 @@ MARGIN = 5
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 pygame.display.set_caption("EasyCab | EC_Central")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
@@ -165,10 +165,34 @@ while running:
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
     
     # RENDER YOUR GAME HERE
+    grid_width = 20 * (WIDTH + MARGIN) + MARGIN
+    grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
+
+    # Calculate offsets for centering in y and adding margin in x
+    x_offset = 50  # Margin in x
+    # Dynamically calculate cell size based on screen size
+    grid_width = screen.get_width() - 100  # Leave some margin in x
+    grid_height = screen.get_height() - 100  # Leave some margin in y
+
+    cell_width = (grid_width - (MARGIN * 21)) // 20
+    cell_height = (grid_height - (MARGIN * 21)) // 20
+
+    # Ensure cells are square and fit within the screen
+    cell_size = min(cell_width, cell_height)
+    WIDTH = HEIGHT = max(20, cell_size)  # Minimum size of 20
+
+    # Recalculate grid dimensions
+    grid_width = 20 * (WIDTH + MARGIN) + MARGIN
+    grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
+
+    # Calculate offsets for centering in y and adding margin in x
+    x_offset = 50  # Margin in x
+    y_offset = (screen.get_height() - grid_height) // 2  # Dynamically centered in y
+
     for row in range(20):
         for column in range(20):
-            rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN,
-                                (MARGIN + HEIGHT) * row + MARGIN,
+            rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN + x_offset,
+                                (MARGIN + HEIGHT) * row + MARGIN + y_offset,
                                 WIDTH,
                                 HEIGHT])
 
@@ -187,6 +211,27 @@ while running:
                 text_rect = text_surface.get_rect(center=rect.center)
                 screen.blit(text_surface, text_rect)
 
+    # Render taxi information
+    taxi_info_y = 10  # Starting Y position for taxi info
+    taxi_info_x = 800  # X position for taxi info
+    screen.blit(font.render("*** EASY CAB Release 1 ***", True, "black"), (taxi_info_x, taxi_info_y))
+    taxi_info_y += 60
+
+    screen.blit(font.render("Taxis:", True, "black"), (taxi_info_x, taxi_info_y))
+    taxi_info_y += 50
+    for taxi in taxis:
+        taxi_text = f"Id: {taxi[0]}, Destino: {taxi[4]}, Estado: {taxi[1]}"
+        screen.blit(font.render(taxi_text, True, "black"), (taxi_info_x, taxi_info_y))
+        taxi_info_y += 35
+
+    # Render customer information
+    customer_info_y = taxi_info_y + 30  # Leave some space after taxi info
+    screen.blit(font.render("Clientes:", True, "black"), (taxi_info_x, customer_info_y))
+    customer_info_y += 50
+    for customer in customers:
+        customer_text = f"Id: {customer[0]}, Destino: {customer[1]}, Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
+        screen.blit(font.render(customer_text, True, "black"), (taxi_info_x, customer_info_y))
+        customer_info_y += 35
     # flip() the display to put your work on screen
     pygame.display.flip()
 
