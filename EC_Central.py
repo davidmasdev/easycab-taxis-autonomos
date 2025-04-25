@@ -24,7 +24,10 @@ for location in unformatedLocations:
 con = sqlite3.connect(database)
 cur = con.cursor()
 cur.execute('Create table if not exists taxis (id integer primary key autoincrement, estado string, posX integer, posY integer, destino string)')
-cur.execute('Insert into taxis (estado, posX, posY, destino) values (?, ?, ?, ?)', ('Ok', 0, 0, ''))
+cur.execute('Insert into taxis (estado, posX, posY, destino) values (?, ?, ?, ?)', ('Sin autenticar', 0, 0, ''))
+cur.execute('Insert into taxis (estado, posX, posY, destino) values (?, ?, ?, ?)', ('Sin autenticar', 0, 0, ''))
+cur.execute('Insert into taxis (estado, posX, posY, destino) values (?, ?, ?, ?)', ('Sin autenticar', 0, 0, ''))
+cur.execute('Insert into taxis (estado, posX, posY, destino) values (?, ?, ?, ?)', ('Sin autenticar', 0, 0, ''))
 
 # This sets the WIDTH and HEIGHT of each grid location
 WIDTH = 20
@@ -84,7 +87,8 @@ while running:
             for taxi in taxis:
                 if str(taxi[0]) == data:
                     print(f"Taxi {data} autenticado y operativo")
-                    conn.sendall(("Taxi autenticado").encode())            
+                    cur.execute('update taxis set estado = ? where id = ?', ('OK', taxi[0]))
+                    conn.sendall(("Taxi autenticado").encode())
         conn.close()
     except BlockingIOError:
         pass
@@ -132,7 +136,7 @@ while running:
                             print(f'Asignado servicio {customer[1]} al Customer {customer[0]}')
                             for taxi in taxis:
                                 print(taxi)
-                                if(taxi[4] == '' and taxi[1] == 'Ok'): # TODO: Cambiar en un futuro
+                                if(taxi[4] == '' and taxi[1] == 'OK'): # TODO: Cambiar en un futuro
                                     cur.execute('update taxis set destino = ?, estado = ? where id = ?', (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
                                     producer.send('centralTaxi', (f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}').encode())
                                     print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
@@ -156,13 +160,16 @@ while running:
                 
                 if(messageSplit[0] == 'terminado'):
                     producer.send('centralCustomer', (f'servicio terminado {messageSplit[1]} {messageSplit[2]}').encode())
-                    cur.execute('update taxis set estado = ?, destino = ? where id = ?', ('Ok', '', messageSplit[3]))
+                    cur.execute('update taxis set estado = ?, destino = ? where id = ?', ('OK', '', messageSplit[3]))
                     for customer in customers:
                         if customer[0] == messageSplit[1]:
                             customer[1] = ''
                             print(f'Servicio {messageSplit[1]} terminado')
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
+    producer.send('centralTaxi', (f'taxis {str(taxis)}').encode())
+    producer.send('centralTaxi', (f'customers {str(customers)}').encode())
+    producer.send('centralTaxi', (f'locations {str(locations)}').encode())
     
     # RENDER YOUR GAME HERE
     grid_width = 20 * (WIDTH + MARGIN) + MARGIN
@@ -199,7 +206,12 @@ while running:
             color = "white"
             if (grid[row][column] != 0):
                 if (isinstance(grid[row][column], int)):
-                    color = "green"
+                    for taxi in taxis:
+                        if taxi[0] == grid[row][column]:
+                            if taxi[1].startswith('OK'):
+                                color = "green"
+                            else:
+                                color = "red"
                 elif (grid[row][column].islower()):
                     color = "yellow"
                 else:
@@ -230,7 +242,7 @@ while running:
     screen.blit(dynamic_font.render("Taxis:", True, "darkgreen"), (info_x, info_y))
     info_y += 60  # Increase spacing between sections
     for taxi in taxis:
-        taxi_text = f"Id: {taxi[0]}, Destino: {taxi[4]}, Estado: {taxi[1]}"
+        taxi_text = f"Id: {taxi[0]} Destino: {taxi[4]} Estado: {taxi[1]}"
         screen.blit(dynamic_font.render(taxi_text, True, "black"), (info_x, info_y))
         info_y += 40  # Increase line spacing
 
@@ -239,7 +251,7 @@ while running:
     screen.blit(dynamic_font.render("Clientes:", True, "darkred"), (info_x, info_y))
     info_y += 60  # Increase spacing between sections
     for customer in customers:
-        customer_text = f"Id: {customer[0]}, Destino: {customer[1]}, Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
+        customer_text = f"Id: {customer[0]} Destino: {customer[1]} Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
         screen.blit(dynamic_font.render(customer_text, True, "black"), (info_x, info_y))
         info_y += 40  # Increase line spacing
     # flip() the display to put your work on screen

@@ -66,13 +66,62 @@ while running:
                 messageSplit = message.split(" ")
                 if(message.strip().startswith('grid')):
                     grid = eval(message.strip()[5:])
+                if(message.strip().startswith('taxis')):
+                    taxis = eval(message.strip()[5:])
+                    for taxiData in taxis:
+                        if str(taxiData[0]) == idTaxi:
+                            position = [taxiData[2],taxiData[3]]
+                if(message.strip().startswith('customers')):
+                    customers = eval(message.strip()[9:])
+                    for customerData in customers:
+                        if customerData[0] == customer:
+                            customerPosition = customerData[2]
+                if(message.strip().startswith('locations')):
+                    locations = eval(message.strip()[9:])
                 if(messageSplit[0] == 'asignar' and messageSplit[1] == str(idTaxi)):
                     customer = messageSplit[3]
-                    print(customer)
+                    for customerData in customers:
+                        if customerData[0] == customer:
+                            customerPosition = customerData[2]
                     destination = messageSplit[5]
-                    print(destination)
+                    for location in locations:
+                        if location[0] == destination:
+                            locationPosition = location[1]
+                            destinationPosition = [int(item) for item in locationPosition]
                     nextService = True
-                   
+
+    print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
+    if position != customerPosition and position != [] and customerPosition != []:
+        print(f"Taxi {idTaxi} recogiendo a {customer}")
+        if position[0] < customerPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[0] > customerPosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
+        elif position[1] < customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] > customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode()) 
+
+    if position == customerPosition and position != destinationPosition:
+        print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
+        if position[0] < destinationPosition[0]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[0] > destinationPosition[0]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]]}').encode())
+        elif position[1] < destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] > destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}').encode())
+
+    if position == destinationPosition and position != [] and position == customerPosition:
+        producer.send('taxiCentral', (f'terminado {customer} {destination} {idTaxi}').encode())
+        nextService = False
+        customer = ''
+        destination = ''
+        customerPosition = []
+        destinationPosition = []
+        print(f"Taxi {idTaxi} dejando a {customer} en {destination}")
+
     # RENDER YOUR GAME HERE
     grid_width = 20 * (WIDTH + MARGIN) + MARGIN
     grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
@@ -109,58 +158,26 @@ while running:
                 color = "white"
                 if (grid[row][column] != 0):
                     if (isinstance(grid[row][column], int)):
-                        if (grid[row][column] == int(idTaxi)):
-                            position = [row, column]
+                        # if (grid[row][column] == int(idTaxi)):
+                        #     position = [row, column]
                         color = "green"
                     elif grid[row][column][0] == str(idTaxi) and grid[row][column][1] == customer:
-                        position = [row, column]
-                        customerPosition = [row, column]
+                        # position = [row, column]
+                        # customerPosition = [row, column]
                         color = "green"
                     elif (grid[row][column].islower()):
-                        if (grid[row][column] == customer):
-                            customerPosition = [row, column]
+                        # if (grid[row][column] == customer):
+                        #     customerPosition = [row, column]
                         color = "yellow"
                     else:
-                        if (grid[row][column] == destination):
-                            destinationPosition = [row, column]
+                        # if (grid[row][column] == destination):
+                        #     destinationPosition = [row, column]
                         color = "light blue"
                 pygame.draw.rect(screen, color, rect)
                 if (grid[row][column] != 0):
                     text_surface = font.render(str(grid[row][column]), True, "black")
                     text_rect = text_surface.get_rect(center=rect.center)
                     screen.blit(text_surface, text_rect)
-
-    print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
-    if position != customerPosition and position != [] and customerPosition != []:
-        print(f"Taxi {idTaxi} recogiendo a {customer}")
-        if position[0] < customerPosition[0]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
-        elif position[0] > customerPosition[0]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
-        elif position[1] < customerPosition[1]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
-        elif position[1] > customerPosition[1]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode()) 
-
-    if position == customerPosition and position != destinationPosition:
-        print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
-        if position[0] < destinationPosition[0]:
-            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]]}').encode())
-        elif position[0] > destinationPosition[0]:
-            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]]}').encode())
-        elif position[1] < destinationPosition[1]:
-            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]+1]}').encode())
-        elif position[1] > destinationPosition[1]:
-            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}').encode())
-
-    if position == destinationPosition and position != [] and position == customerPosition:
-        producer.send('taxiCentral', (f'terminado {customer} {destination} {idTaxi}').encode())
-        nextService = False
-        customer = ''
-        destination = ''
-        customerPosition = []
-        destinationPosition = []
-        print(f"Taxi {idTaxi} dejando a {customer} en {destination}")
 
     # flip() the display to put
     #  your work on screen
