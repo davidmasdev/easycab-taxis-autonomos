@@ -211,27 +211,37 @@ while running:
                 text_rect = text_surface.get_rect(center=rect.center)
                 screen.blit(text_surface, text_rect)
 
-    # Render taxi information
-    taxi_info_y = 10  # Starting Y position for taxi info
-    taxi_info_x = 800  # X position for taxi info
-    screen.blit(font.render("*** EASY CAB Release 1 ***", True, "black"), (taxi_info_x, taxi_info_y))
-    taxi_info_y += 60
+    # Render taxi and customer information
+    info_width = max(450, screen.get_width() // 3)  # Dynamically adjust width based on screen size
+    info_x = grid_width + (screen.get_width() - grid_width - info_width) // 2  # Center horizontally between grid and right edge
+    info_panel_rect = pygame.Rect(info_x - 20, 50, info_width, screen.get_height() - 80)  # Increase height to prevent overflow
+    pygame.draw.rect(screen, "lightgrey", info_panel_rect, border_radius=10)  # Rounded corners
+    pygame.draw.rect(screen, "black", info_panel_rect, width=2, border_radius=10)  # Border
 
-    screen.blit(font.render("Taxis:", True, "black"), (taxi_info_x, taxi_info_y))
-    taxi_info_y += 50
+    # Render title with bold font and color
+    title_font = pygame.font.SysFont('arial', max(28, screen.get_width() // 50), bold=True)  # Adjust font size dynamically
+    title_surface = title_font.render("*** EASY CAB Release 1 ***", True, "darkblue")
+    screen.blit(title_surface, (info_x, 60))
+    info_y = 140  # Adjust starting y position for better spacing
+
+    # Render taxi information
+    font_size = max(24, screen.get_width() // 60)  # Adjust font size dynamically
+    dynamic_font = pygame.font.SysFont('arial', font_size)
+    screen.blit(dynamic_font.render("Taxis:", True, "darkgreen"), (info_x, info_y))
+    info_y += 60  # Increase spacing between sections
     for taxi in taxis:
         taxi_text = f"Id: {taxi[0]}, Destino: {taxi[4]}, Estado: {taxi[1]}"
-        screen.blit(font.render(taxi_text, True, "black"), (taxi_info_x, taxi_info_y))
-        taxi_info_y += 35
+        screen.blit(dynamic_font.render(taxi_text, True, "black"), (info_x, info_y))
+        info_y += 40  # Increase line spacing
 
     # Render customer information
-    customer_info_y = taxi_info_y + 30  # Leave some space after taxi info
-    screen.blit(font.render("Clientes:", True, "black"), (taxi_info_x, customer_info_y))
-    customer_info_y += 50
+    info_y += 40  # Leave more space after taxi info
+    screen.blit(dynamic_font.render("Clientes:", True, "darkred"), (info_x, info_y))
+    info_y += 60  # Increase spacing between sections
     for customer in customers:
         customer_text = f"Id: {customer[0]}, Destino: {customer[1]}, Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
-        screen.blit(font.render(customer_text, True, "black"), (taxi_info_x, customer_info_y))
-        customer_info_y += 35
+        screen.blit(dynamic_font.render(customer_text, True, "black"), (info_x, info_y))
+        info_y += 40  # Increase line spacing
     # flip() the display to put your work on screen
     pygame.display.flip()
 
