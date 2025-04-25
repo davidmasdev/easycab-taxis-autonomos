@@ -33,7 +33,7 @@ MARGIN = 5
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 pygame.display.set_caption(f'EasyCab | EC_DE Taxi {idTaxi}')
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
@@ -54,6 +54,9 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    # fill the screen with a color to wipe away anything from last frame
+    screen.fill("grey")
+
     msg = consumer.poll(timeout_ms=100)
 
     if msg:
@@ -71,13 +74,37 @@ while running:
                     nextService = True
                    
     # RENDER YOUR GAME HERE
+    grid_width = 20 * (WIDTH + MARGIN) + MARGIN
+    grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
+
+    # Calculate offsets for centering in y and adding margin in x
+    x_offset = 50  # Margin in x
+    # Dynamically calculate cell size based on screen size
+    grid_width = screen.get_width() - 100  # Leave some margin in x
+    grid_height = screen.get_height() - 100  # Leave some margin in y
+
+    cell_width = (grid_width - (MARGIN * 21)) // 20
+    cell_height = (grid_height - (MARGIN * 21)) // 20
+
+    # Ensure cells are square and fit within the screen
+    cell_size = min(cell_width, cell_height)
+    WIDTH = HEIGHT = max(20, cell_size)  # Minimum size of 20
+
+    # Recalculate grid dimensions
+    grid_width = 20 * (WIDTH + MARGIN) + MARGIN
+    grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
+    
+    # Calculate offsets for centering in y and adding margin in x
+    x_offset = 50  # Margin in x
+    y_offset = (screen.get_height() - grid_height) // 2  # Dynamically centered in y
+
     if grid != []:
         for row in range(20):
             for column in range(20):
-                rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN,
-                                    (MARGIN + HEIGHT) * row + MARGIN,
-                                    WIDTH,
-                                    HEIGHT])
+                rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN + x_offset,
+                                (MARGIN + HEIGHT) * row + MARGIN + y_offset,
+                                WIDTH,
+                                HEIGHT])
 
                 color = "white"
                 if (grid[row][column] != 0):
