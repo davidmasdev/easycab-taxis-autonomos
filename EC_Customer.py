@@ -23,6 +23,8 @@ producer = KafkaProducer(bootstrap_servers='localhost:9092')
 nextService = True
 numService = 0
 
+producer.send('customerCentral', (f'create customer {idCustomer}').encode())
+
 # Kafka Consumer
 consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
 consumer.subscribe(['centralCustomer'])
@@ -57,10 +59,13 @@ while running:
                 if(messageSplit[0] == 'servicio' and messageSplit[1] == 'terminado' and messageSplit[2] == str(idCustomer)):
                     print(f"Servicio {messageSplit[3]} terminado")
                     nextService = True
-
+                if(messageSplit[0] == 'denegacion' and messageSplit[1] == str(idCustomer)):
+                    print(f"Servicio {messageSplit[2]} denegado")
+                    time.sleep(5)
+                    nextService = True
+                    numService -= 1
+                    
     if(nextService):
-        if(numService==0):
-            producer.send('customerCentral', (f'create customer {idCustomer}').encode())
         time.sleep(4)
         producer.send('customerCentral', (f"service {servicios[numService]} customer {idCustomer}").encode())
         print(f"Servicio {servicios[numService]} solicitado")

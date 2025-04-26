@@ -132,15 +132,20 @@ while running:
                 if(messageSplit[0] == 'service'):
                     for customer in customers:
                         if customer[0] == messageSplit[3]:
+                            asigned = False
                             customer[1] = messageSplit[1]
-                            print(f'Asignado servicio {customer[1]} al Customer {customer[0]}')
+                            # print(f'Asignado servicio {customer[1]} al Customer {customer[0]}')
                             for taxi in taxis:
                                 print(taxi)
                                 if(taxi[4] == '' and taxi[1] == 'OK'): # TODO: Cambiar en un futuro
                                     cur.execute('update taxis set destino = ?, estado = ? where id = ?', (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
                                     producer.send('centralTaxi', (f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}').encode())
                                     print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
-                
+                                    asigned = True
+                                    break
+                            if not asigned:
+                                producer.send('centralCustomer', (f'denegacion {customer[0]} de servicio').encode())
+
                 if(messageSplit[0] == 'mover'):
                     for taxi in taxis:
                         print(messageSplit)
