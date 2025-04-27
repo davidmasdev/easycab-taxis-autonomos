@@ -93,18 +93,34 @@ while running:
     print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
     if position != customerPosition and position != [] and customerPosition != []:
         print(f"Taxi {idTaxi} recogiendo a {customer}")
-        if position[0] < customerPosition[0]:
+        if position[0] < customerPosition[0] and position[1] < customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]+1]}').encode())
+        elif position[0] < customerPosition[0] and position[1] > customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]-1]}').encode())
+        elif position[0] > customerPosition[0] and position[1] < customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]+1]}').encode())
+        elif position[0] > customerPosition[0] and position[1] > customerPosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]-1]}').encode())
+        elif position[0] < customerPosition[0]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
         elif position[0] > customerPosition[0]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
         elif position[1] < customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
         elif position[1] > customerPosition[1]:
-            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode()) 
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
 
     if position == customerPosition and position != destinationPosition:
         print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
-        if position[0] < destinationPosition[0]:
+        if position[0] < destinationPosition[0] and position[1] < destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]+1]}').encode())
+        elif position[0] < destinationPosition[0] and position[1] > destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]-1]}').encode())
+        elif position[0] > destinationPosition[0] and position[1] < destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]+1]}').encode())
+        elif position[0] > destinationPosition[0] and position[1] > destinationPosition[1]:
+            producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]-1]}').encode())
+        elif position[0] < destinationPosition[0]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]]}').encode())
         elif position[0] > destinationPosition[0]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]]}').encode())
