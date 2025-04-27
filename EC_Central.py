@@ -170,6 +170,11 @@ while running:
                         if customer[0] == messageSplit[1]:
                             customer[1] = ''
                             print(f'Servicio {messageSplit[1]} terminado')
+                if(messageSplit[0] == 'terminados'):
+                    for customer in customers:
+                        if customer[0] == messageSplit[1]:
+                            customer[1] = 'terminado'
+                            print(f'Custoemr {messageSplit[0]} ha terminado todos los servicios')
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
     producer.send('centralTaxi', (f'taxis {str(taxis)}').encode())
@@ -256,8 +261,19 @@ while running:
     screen.blit(dynamic_font.render("Clientes:", True, "darkred"), (info_x, info_y))
     info_y += 60  # Increase spacing between sections
     for customer in customers:
-        customer_text = f"Id: {customer[0]} Destino: {customer[1]} Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
-        screen.blit(dynamic_font.render(customer_text, True, "black"), (info_x, info_y))
+        if customer[1] == 'terminado':
+            customer_text_lines = [
+                f"Id: {customer[0]} Destino: {customer[1]}",
+                "Estado: Servicios terminados"
+            ]
+        else:
+            customer_text_lines = [
+                f"Id: {customer[0]} Destino: {customer[1]}",
+                f"Estado: {'Sin Taxi' if customer[1] == '' else 'OK'}"
+            ]
+        for line in customer_text_lines:
+            screen.blit(dynamic_font.render(line, True, "black"), (info_x, info_y))
+            info_y += 40  # Adjust line spacing
         info_y += 40  # Increase line spacing
     # flip() the display to put your work on screen
     pygame.display.flip()

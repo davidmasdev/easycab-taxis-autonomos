@@ -36,11 +36,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if(numService==len(servicios)):
-        print("Todos los servicios han sido solicitados")
-        pygame.quit()
-        break
-
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("white")
 
@@ -59,6 +54,13 @@ while running:
                 if(messageSplit[0] == 'servicio' and messageSplit[1] == 'terminado' and messageSplit[2] == str(idCustomer)):
                     print(f"Servicio {messageSplit[3]} terminado")
                     nextService = True
+                    numService += 1
+                    if(numService==len(servicios)):
+                        print("Todos los servicios han sido solicitados")
+                        producer.send('customerCentral', (f"terminados {idCustomer} todos los servicios").encode())
+                        pygame.quit()
+                        break
+
                 if(messageSplit[0] == 'denegacion' and messageSplit[1] == str(idCustomer)):
                     print(f"Servicio {messageSplit[2]} denegado")
                     time.sleep(5)
@@ -69,10 +71,9 @@ while running:
         time.sleep(4)
         producer.send('customerCentral', (f"service {servicios[numService]} customer {idCustomer}").encode())
         print(f"Servicio {servicios[numService]} solicitado")
-        numService += 1
         nextService = False
     
-
+    
     # flip() the display to put your work on screen
     pygame.display.flip()
 
