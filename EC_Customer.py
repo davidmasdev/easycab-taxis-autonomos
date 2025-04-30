@@ -71,7 +71,7 @@ while running:
                         render_messages(screen, font, display_messages)  # Call the function to render messages
 
                         producer.send('customerCentral', (f"terminados {idCustomer} todos los servicios").encode())
-                        pygame.quit()
+                        # pygame.quit()
                         nextService = False
                         break
 
