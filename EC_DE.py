@@ -11,11 +11,24 @@ idTaxi = sys.argv[4]
 ipCentral = ipPortCentral.split(":")[0]
 portCentral = int(ipPortCentral.split(":")[1])
 
+ipEcs = ipPortEcs.split(":")[0]
+portEcs = int(ipPortEcs.split(":")[1])
+
+# Connect to Central
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ipCentral, portCentral))
     s.sendall(f"{idTaxi}".encode())
     data = s.recv(1024)
     print(f"Received {data.decode()} from Central")
+
+# Socket server creation
+soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+soc.bind(('localhost', 4000))
+soc.listen(1)
+soc.setblocking(0)
+conn = None
+# conn, addr = soc.accept()
+# conn.setblocking(0)
 
 # # Kafka Producer
 producer = KafkaProducer(bootstrap_servers='localhost:9092')
@@ -48,6 +61,9 @@ position = []
 
 nextService = False
 
+# Variable para almacenar el estado recibido de EC_S
+estado_ec_s = "Esperando estado..."
+
 while running:
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -56,6 +72,34 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
+
+    # Get data from socket connection EC_S
+    if conn is None:
+        try:
+            conn, addr = soc.accept()
+            conn.setblocking(False)
+            print("Cliente conectado")
+        except BlockingIOError:
+            pass  # No hay conexión entrante todavía
+    else:
+        try:
+            data = conn.recv(1024).decode()
+            if not data:
+                break
+            print(f"Received {data} from EC_S")
+            estado_ec_s = data.strip()  # Actualiza el estado recibido
+            # conn.close()
+        except BlockingIOError:
+            pass
+
+    # Render the estado_ec_s on the screen
+    estado_text = font.render(f"Estado EC_S: {estado_ec_s}", True, "white")
+
+    # Calcula la posición para mostrar el texto en el lado derecho
+    estado_x = screen.get_width() - estado_text.get_width() - 50  # 50 píxeles de margen desde el borde derecho
+    estado_y = 50  # Mantén la posición vertical en 50 píxeles
+
+    screen.blit(estado_text, (estado_x, estado_y))  # Muestra el texto en la nueva posición
 
     msg = consumer.poll(timeout_ms=100)
 
@@ -90,9 +134,9 @@ while running:
                             destinationPosition = [int(item) for item in locationPosition]
                     nextService = True
 
-    print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
+    # print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
     if position != customerPosition and position != [] and customerPosition != []:
-        print(f"Taxi {idTaxi} recogiendo a {customer}")
+        # print(f"Taxi {idTaxi} recogiendo a {customer}")
         if position[0] < customerPosition[0] and position[1] < customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]+1]}').encode())
         elif position[0] < customerPosition[0] and position[1] > customerPosition[1]:
@@ -111,7 +155,7 @@ while running:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
 
     if position == customerPosition and position != destinationPosition:
-        print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
+        # print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
         if position[0] < destinationPosition[0] and position[1] < destinationPosition[1]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]+1]}').encode())
         elif position[0] < destinationPosition[0] and position[1] > destinationPosition[1]:
@@ -136,7 +180,7 @@ while running:
         destination = ''
         customerPosition = []
         destinationPosition = []
-        print(f"Taxi {idTaxi} dejando a {customer} en {destination}")
+        # print(f"Taxi {idTaxi} dejando a {customer} en {destination}")
 
     # RENDER YOUR GAME HERE
     grid_width = 20 * (WIDTH + MARGIN) + MARGIN
@@ -195,13 +239,13 @@ while running:
                     text_rect = text_surface.get_rect(center=rect.center)
                     screen.blit(text_surface, text_rect)
 
-    # flip() the display to put
-    #  your work on screen
+    # flip() the display to put your work on screen
     pygame.display.flip()
 
     clock.tick(1)
 
 
+conn.close()    
 consumer.close()
 pygame.quit()
 

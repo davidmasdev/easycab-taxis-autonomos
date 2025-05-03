@@ -14,17 +14,15 @@ running = True
 
 # Socket creation
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((ipPortEcde.split(":")[0], int(ipPortEcde.split(":")[1])))
-s.listen(1)
-s.setblocking(0)
 
-# Accept a connection (non-blocking)
-conn = None
+# Connect to the server
+server_ip, server_port = ipPortEcde.split(":")
 try:
-    conn, addr = s.accept()
-    print(f"Conexión establecida con {addr}")
-except BlockingIOError:
-    pass
+    s.connect((server_ip, int(server_port)))
+    print(f"Conectado al servidor en {server_ip}:{server_port}")
+except ConnectionRefusedError:
+    print("No se pudo conectar al servidor")
+    sys.exit(1)
 
 # Default message to send
 message = b'OK\n'
@@ -49,14 +47,17 @@ while running:
     state_text = font.render(f"Estado actual: {message.decode().strip()}", True, "white")
     screen.blit(state_text, (50, 50))  # Display the text at position (50, 50)
 
-    # Send the current message every second if a connection exists
-    if conn:
-        try:
-            conn.sendall(message)
-        except (BrokenPipeError, ConnectionResetError):
-            print("Conexión perdida")
-            conn = None  # Reset connection if it's lost
+    # Send the current message every second
+    try:
+        s.sendall(message)
+        print(f"Enviando: {message.decode().strip()}")
+    except (BrokenPipeError, ConnectionResetError):
+        print("Conexión perdida")
+        running = False  # Exit the loop if the connection is lost
 
     pygame.display.flip()
 
     clock.tick(1)
+
+# Close the socket when the game loop ends
+s.close()
