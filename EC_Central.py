@@ -149,7 +149,7 @@ while running:
 
                 if(messageSplit[0] == 'mover'):
                     for taxi in taxis:
-                        print(messageSplit)
+                        # print(messageSplit)
                         if messageSplit[1] == 'juntos' and str(taxi[0]) == messageSplit[3]:
                             newPos = eval(message[message.find('['):message.find(']')+1])
                             print(newPos[0], newPos[1])
@@ -157,11 +157,11 @@ while running:
                             for customer in customers:
                                 if customer[0] == messageSplit[2]:
                                     customer[2] = [newPos[0], newPos[1]]
-                                    print(f'Customer {customer[0]} moved to position {newPos}')
-
+                                    # print(f'Customer {customer[0]} moved to position {newPos}')
+# 
                         elif str(taxi[0]) == messageSplit[1]:
                             newPos = eval(message[message.find('['):message.find(']')+1])
-                            print(newPos[0], newPos[1])
+                            # print(newPos[0], newPos[1])
                             cur.execute('update taxis set posX = ?, posY = ? where id = ?', (newPos[0], newPos[1], taxi[0]))
                 
                 if(messageSplit[0] == 'terminado'):
@@ -175,7 +175,13 @@ while running:
                     for customer in customers:
                         if customer[0] == messageSplit[1]:
                             customer[1] = 'terminado'
-                            print(f'Custoemr {messageSplit[0]} ha terminado todos los servicios')
+                            print(f'Customer {messageSplit[0]} ha terminado todos los servicios')
+                if(messageSplit[0] == 'cambio'):
+                    # print('Cambio de estado')
+                    for taxi in taxis:
+                        if str(taxi[0]) == messageSplit[1]:
+                            cur.execute('update taxis set estado = ? where id = ?', (messageSplit[2], taxi[0]))
+                            print(f'Taxi {messageSplit[1]} ha cambiado su estado a {messageSplit[2]}')
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
     producer.send('centralTaxi', (f'taxis {str(taxis)}').encode())

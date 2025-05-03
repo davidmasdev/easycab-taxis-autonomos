@@ -87,6 +87,9 @@ while running:
             if not data:
                 break
             print(f"Received {data} from EC_S")
+            if data.strip() != estado_ec_s:
+                producer.send('taxiCentral', (f'cambio {idTaxi} {data.strip()}').encode())
+                print(f"Enviando: {data.strip()} a taxiCentral")
             estado_ec_s = data.strip()  # Actualiza el estado recibido
             # conn.close()
         except BlockingIOError:
@@ -115,6 +118,7 @@ while running:
                     for taxiData in taxis:
                         if str(taxiData[0]) == idTaxi:
                             position = [taxiData[2],taxiData[3]]
+                            estado = taxiData[1]
                 if(message.strip().startswith('customers')):
                     customers = eval(message.strip()[9:])
                     for customerData in customers:
@@ -135,7 +139,7 @@ while running:
                     nextService = True
 
     # print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
-    if position != customerPosition and position != [] and customerPosition != []:
+    if position != customerPosition and position != [] and customerPosition != [] and estado.startswith('OK'):
         # print(f"Taxi {idTaxi} recogiendo a {customer}")
         if position[0] < customerPosition[0] and position[1] < customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]+1]}').encode())
@@ -154,7 +158,7 @@ while running:
         elif position[1] > customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
 
-    if position == customerPosition and position != destinationPosition:
+    if position == customerPosition and position != destinationPosition and estado.startswith('OK'):
         # print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
         if position[0] < destinationPosition[0] and position[1] < destinationPosition[1]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]+1]}').encode())
@@ -173,7 +177,7 @@ while running:
         elif position[1] > destinationPosition[1]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}').encode())
 
-    if position == destinationPosition and position != [] and position == customerPosition:
+    if position == destinationPosition and position != [] and position == customerPosition and estado.startswith('OK'):
         producer.send('taxiCentral', (f'terminado {customer} {destination} {idTaxi}').encode())
         nextService = False
         customer = ''
