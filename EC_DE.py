@@ -217,37 +217,41 @@ while running:
     y_offset = (screen.get_height() - grid_height) // 2  # Dynamically centered in y
 
     if grid != []:
-        for row in range(20):
-            for column in range(20):
-                rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN + x_offset,
+       for row in range(20):
+        for column in range(20):
+            rect = pygame.Rect([(MARGIN + WIDTH) * column + MARGIN + x_offset,
                                 (MARGIN + HEIGHT) * row + MARGIN + y_offset,
                                 WIDTH,
                                 HEIGHT])
-
-                color = "white"
-                if (grid[row][column] != 0):
-                    if (isinstance(grid[row][column], int)):
-                        # if (grid[row][column] == int(idTaxi)):
-                        #     position = [row, column]
-                        color = "green"
-                    elif grid[row][column][0] == str(idTaxi) and grid[row][column][1] == customer:
-                        # position = [row, column]
-                        # customerPosition = [row, column]
-                        color = "green"
-                    elif (grid[row][column].islower()):
-                        # if (grid[row][column] == customer):
-                        #     customerPosition = [row, column]
-                        color = "yellow"
+                                
+            color = "white"
+            if (grid[row][column] != 0):
+                if (isinstance(grid[row][column], int)):
+                    for taxi in taxis:
+                        if taxi[0] == grid[row][column]:
+                            if taxi[1].startswith('OK'):
+                                color = "green"
+                            else:
+                                color = "red"
+                elif (grid[row][column].islower()):
+                    if len(grid[row][column]) > 1:
+                        for taxi in taxis:
+                            if str(taxi[0]) == grid[row][column][0]:
+                                if taxi[1].startswith('OK'):
+                                    color = "green"
+                                else:
+                                    color = "red"
                     else:
-                        # if (grid[row][column] == destination):
-                        #     destinationPosition = [row, column]
-                        color = "light blue"
-                pygame.draw.rect(screen, color, rect)
-                if (grid[row][column] != 0):
-                    text_surface = font.render(str(grid[row][column]), True, "black")
-                    text_rect = text_surface.get_rect(center=rect.center)
-                    screen.blit(text_surface, text_rect)
+                        color = "yellow"
+                else:
+                    color = "light blue"
+            pygame.draw.rect(screen, color, rect)
 
+            if (grid[row][column] != 0):
+                text_surface = font.render(str(grid[row][column]), True, "black")
+                text_rect = text_surface.get_rect(center=rect.center)
+                screen.blit(text_surface, text_rect) 
+        
     # flip() the display to put your work on screen
     pygame.display.flip()
 
