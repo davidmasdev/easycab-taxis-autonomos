@@ -87,7 +87,7 @@ while running:
             for taxi in taxis:
                 if str(taxi[0]) == data:
                     print(f"Taxi {data} autenticado y operativo")
-                    cur.execute('update taxis set estado = ? where id = ?', ('OK', taxi[0]))
+                    cur.execute('update taxis set estado = ? where id = ?', ('Esperando estado...', taxi[0]))
                     conn.sendall(("Taxi autenticado").encode())
         conn.close()
     except BlockingIOError:
@@ -158,7 +158,7 @@ while running:
                                 if customer[0] == messageSplit[2]:
                                     customer[2] = [newPos[0], newPos[1]]
                                     # print(f'Customer {customer[0]} moved to position {newPos}')
-# 
+
                         elif str(taxi[0]) == messageSplit[1]:
                             newPos = eval(message[message.find('['):message.find(']')+1])
                             # print(newPos[0], newPos[1])
@@ -180,8 +180,13 @@ while running:
                     # print('Cambio de estado')
                     for taxi in taxis:
                         if str(taxi[0]) == messageSplit[1]:
-                            cur.execute('update taxis set estado = ? where id = ?', (messageSplit[2], taxi[0]))
-                            print(f'Taxi {messageSplit[1]} ha cambiado su estado a {messageSplit[2]}')
+                            new_state = ' '.join(messageSplit[3:])  # Join all parts of the state after the first split
+                            cur.execute('update taxis set estado = ? where id = ?', (new_state, taxi[0]))
+                            print(f'Taxi {messageSplit[1]} ha cambiado su estado a {new_state}')
+                            #for customer in customers:
+                            #    if customer[0] == messageSplit[2]:
+                            #        customer[2] = new_state[:2]
+                            #        print(f'Customer {customer[0]} ha cambiado su estado a {new_state}')
 
     producer.send('centralTaxi', (f'grid {str(grid)}').encode())
     producer.send('centralTaxi', (f'taxis {str(taxis)}').encode())

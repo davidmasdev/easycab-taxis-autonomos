@@ -24,8 +24,8 @@ except ConnectionRefusedError:
     print("No se pudo conectar al servidor")
     sys.exit(1)
 
-# Default message to send
-message = b'OK\n'
+# Inicializar el mensaje como vacío
+message = b''
 
 # Game loop
 while running:
@@ -36,9 +36,9 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:  # Press 's' to send 'KO'
-                message = b'KO\n'
+                message = b'KO'
             elif event.key == pygame.K_o:  # Press 'o' to send 'OK'
-                message = b'OK\n'
+                message = b'OK'
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
@@ -47,13 +47,15 @@ while running:
     state_text = font.render(f"Estado actual: {message.decode().strip()}", True, "white")
     screen.blit(state_text, (50, 50))  # Display the text at position (50, 50)
 
-    # Send the current message every second
-    try:
-        s.sendall(message)
-        print(f"Enviando: {message.decode().strip()}")
-    except (BrokenPipeError, ConnectionResetError):
-        print("Conexión perdida")
-        running = False  # Exit the loop if the connection is lost
+    # Enviar el mensaje solo si no está vacío
+    if message:
+        try:
+            s.sendall(message)
+            print(f"Enviando: {message.decode().strip()}")
+            # message = b''  # Limpiar el mensaje después de enviarlo
+        except (BrokenPipeError, ConnectionResetError):
+            print("Conexión perdida")
+            running = False  # Exit the loop if the connection is lost
 
     pygame.display.flip()
 

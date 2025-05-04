@@ -86,11 +86,16 @@ while running:
             data = conn.recv(1024).decode()
             if not data:
                 break
-            print(f"Received {data} from EC_S")
-            if data.strip() != estado_ec_s:
-                producer.send('taxiCentral', (f'cambio {idTaxi} {data.strip()}').encode())
-                print(f"Enviando: {data.strip()} a taxiCentral")
-            estado_ec_s = data.strip()  # Actualiza el estado recibido
+            # print(f"Received {data} from EC_S")
+            print (f"Recibido {data.strip()} de EC_S")
+            if data.strip() != estado_ec_s[:2]:
+                if estado.startswith('OK') or estado.startswith('KO'):
+                    estado_ec_s = data.strip() + estado[2:]
+                    print(f"Estado EC_S: {estado_ec_s}")
+                else:
+                    estado_ec_s = data.strip()
+                producer.send('taxiCentral', (f'cambio {idTaxi} {customer} {estado_ec_s}').encode())
+                print(f"Enviando: {estado_ec_s} a taxiCentral")
             # conn.close()
         except BlockingIOError:
             pass
