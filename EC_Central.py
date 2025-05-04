@@ -235,7 +235,15 @@ while running:
                             else:
                                 color = "red"
                 elif (grid[row][column].islower()):
-                    color = "yellow"
+                    if len(grid[row][column]) > 1:
+                        for taxi in taxis:
+                            if str(taxi[0]) == grid[row][column][0]:
+                                if taxi[1].startswith('OK'):
+                                    color = "green"
+                                else:
+                                    color = "red"
+                    else:
+                        color = "yellow"
                 else:
                     color = "light blue"
             pygame.draw.rect(screen, color, rect)
