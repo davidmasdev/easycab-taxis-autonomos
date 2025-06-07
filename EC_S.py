@@ -7,7 +7,7 @@ ipPortEcde = sys.argv[1]
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
-pygame.display.set_caption("EasyCab | EC_Central")
+pygame.display.set_caption("EasyCab | EC_S")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True

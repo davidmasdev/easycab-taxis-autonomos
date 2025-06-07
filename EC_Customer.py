@@ -81,7 +81,7 @@ while running:
                     display_messages.append(log_message)
                     render_messages(screen, font, display_messages)  # Call the function to render messages
 
-                    time.sleep(5)
+                    time.sleep(4)
                     nextService = True
                     numService -= 1
 

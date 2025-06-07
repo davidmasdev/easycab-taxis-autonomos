@@ -68,6 +68,24 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:  # Example: Press 'P' to stop a taxi
+                taxi_id = int(input("Ingrese el ID del taxi a detener: "))
+                cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', ('KO', taxi_id))
+                print(f"Taxi {taxi_id} ha sido detenido.")
+            elif event.key == pygame.K_r:  # Example: Press 'R' to resume a taxi
+                taxi_id = int(input("Ingrese el ID del taxi a reanudar: "))
+                cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', ('OK', taxi_id))
+                print(f"Taxi {taxi_id} ha reanudado el servicio.")
+            elif event.key == pygame.K_d:  # Example: Press 'D' to send a taxi to a destination
+                taxi_id = int(input("Ingrese el ID del taxi: "))
+                new_destination = input("Ingrese el nuevo destino (formato: [x,y]): ")
+                cur.execute('UPDATE taxis SET destino = ? WHERE id = ?', (str(new_destination), taxi_id))
+                print(f"Taxi {taxi_id} ahora se dirige a {new_destination}.")
+            elif event.key == pygame.K_b:  # Example: Press 'B' to send a taxi back to base
+                taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
+                cur.execute('UPDATE taxis SET destino = ? WHERE id = ?', ('[0,0]', taxi_id))
+                print(f"Taxi {taxi_id} está volviendo a la base.")
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
