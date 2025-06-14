@@ -79,7 +79,7 @@ while running:
                 print(f"Taxi {taxi_id} ha reanudado el servicio.")
             elif event.key == pygame.K_d:  # Example: Press 'D' to send a taxi to a destination
                 taxi_id = int(input("Ingrese el ID del taxi: "))
-                new_destination = input("Ingrese el nuevo destino (formato: [x,y]): ")
+                new_destination = input("Ingrese el nuevo destino (Letra mayúscula): ")
                 cur.execute('UPDATE taxis SET destino = ? WHERE id = ?', (str(new_destination), taxi_id))
                 print(f"Taxi {taxi_id} ahora se dirige a {new_destination}.")
             elif event.key == pygame.K_b:  # Example: Press 'B' to send a taxi back to base
