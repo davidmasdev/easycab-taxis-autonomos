@@ -4,6 +4,7 @@ import sqlite3
 from kafka import KafkaConsumer, KafkaProducer
 import random
 import socket
+import requests
 
 # Params
 listenPort = sys.argv[1]
@@ -89,6 +90,17 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("grey")
+
+
+    """
+    TODO: Volver a la base si es KO (todos los taxis), supongo que los clientes no podran solicitar nuevos servicios
+    """
+    weatherState = requests.get("localhost:5000/estado")
+    if weatherState == "KO":
+        producer.send("centralTaxi", ("sistema KO").encode())
+    if weatherState == "OK":
+        producer.send("centralTaxi", ("sistema OK").encode())
+
 
     # Get taxis from db
     res = cur.execute("Select * from taxis")
