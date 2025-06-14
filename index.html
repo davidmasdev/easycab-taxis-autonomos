@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>EasyCab</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        margin: 0;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      #grid-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(20, 1fr);
+        aspect-ratio: 1 / 1;
+        width: calc(100vh - 100px);
+        max-width: calc(100vw - 500px);
+        gap: 2px;
+      }
+
+      .cell {
+        background: white;
+        border: 1px solid #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+
+      .taxi-ok {
+        background-color: green;
+        color: white;
+      }
+      .taxi-busy {
+        background-color: red;
+        color: white;
+      }
+      .customer {
+        background-color: yellow;
+      }
+      .destination {
+        background-color: lightblue;
+      }
+
+      #info {
+        width: 450px;
+        padding: 20px;
+        background-color: #e0e0e0;
+        overflow-y: auto;
+        border-left: 2px solid #aaa;
+      }
+
+      h1 {
+        color: darkblue;
+        font-size: 1.8em;
+        text-align: center;
+        margin-top: 0;
+      }
+
+      .section-title {
+        font-weight: bold;
+        margin-top: 30px;
+        color: darkgreen;
+        font-size: 1.3em;
+      }
+
+      .customer-section .section-title {
+        color: darkred;
+      }
+
+      .entry {
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="grid-container">
+      <div id="grid"></div>
+    </div>
+    <div id="info">
+      <h1>*** EASY CAB Release 2 ***</h1>
+      <div class="taxi-section">
+        <div class="section-title">Taxis:</div>
+        <div id="taxis-info"></div>
+      </div>
+      <div class="customer-section">
+        <div class="section-title">Clientes:</div>
+        <div id="customers-info"></div>
+      </div>
+    </div>
+
+    <script>
+      const grid = document.getElementById("grid");
+      const taxisInfo = document.getElementById("taxis-info");
+      const customersInfo = document.getElementById("customers-info");
+
+      const gridData = Array.from({ length: 20 }, () => Array(20).fill(0));
+
+      // Simulamos datos desde API
+      const taxis = [
+        [1, "OK", 5, 3, "D"],
+        [2, "BUSY", 10, 6, "E"],
+      ];
+
+      const customers = [
+        ["a", "B", 2, 4],
+        ["b", "", 15, 8],
+        ["c", "terminado", 0, 0],
+      ];
+
+      const destinations = {
+        A: [3, 5],
+        B: [11, 2],
+        C: [16, 8],
+        D: [16, 17],
+        E: [10, 19],
+        F: [5, 11],
+      };
+
+      // Pintar datos en el grid lógico
+      Object.entries(destinations).forEach(
+        ([id, [x, y]]) => (gridData[y][x] = id)
+      );
+      customers.forEach(([id, dest, x, y]) => (gridData[y][x] = id));
+      taxis.forEach(([id, status, x, y]) => (gridData[y][x] = id));
+
+      // Renderizar el grid
+      gridData.forEach((row, y) => {
+        row.forEach((val, x) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+
+          if (val !== 0) {
+            if (typeof val === "number") {
+              const taxi = taxis.find((t) => t[0] === val);
+              cell.classList.add(taxi[1] === "OK" ? "taxi-ok" : "taxi-busy");
+              cell.textContent = `T${val}`;
+            } else if (val.length === 1 && val.match(/[a-z]/)) {
+              cell.classList.add("customer");
+              cell.textContent = val;
+            } else {
+              cell.classList.add("destination");
+              cell.textContent = val;
+            }
+          }
+
+          grid.appendChild(cell);
+        });
+      });
+
+      // Render taxis info
+      taxis.forEach(([id, estado, , , destino]) => {
+        const entry = document.createElement("div");
+        entry.className = "entry";
+        entry.textContent = `Id: ${id} Destino: ${destino} Estado: ${estado}`;
+        taxisInfo.appendChild(entry);
+      });
+
+      // Render customers info
+      customers.forEach(([id, destino]) => {
+        const entry = document.createElement("div");
+        entry.className = "entry";
+        const estado =
+          destino === "terminado"
+            ? "Servicios terminados"
+            : destino === ""
+            ? "Sin Taxi"
+            : "OK";
+        entry.innerHTML = `
+        Id: ${id} Destino: ${destino} <br>
+        Estado: ${estado}
+      `;
+        customersInfo.appendChild(entry);
+      });
+    </script>
+  </body>
+</html>
