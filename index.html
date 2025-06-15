@@ -21,6 +21,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
       }
 
       #grid {
@@ -30,6 +31,7 @@
         width: calc(100vh - 100px);
         max-width: calc(100vw - 500px);
         gap: 2px;
+        position: relative;
       }
 
       .cell {
@@ -40,21 +42,93 @@
         align-items: center;
         font-weight: bold;
         font-size: 0.9em;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Elementos animados que se superponen al grid */
+      .animated-element {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 0.9em;
+        z-index: 10;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+      }
+
+      .animated-element.moving {
+        animation: pulse 0.8s ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
       }
 
       .taxi-ok {
-        background-color: green;
+        background-color: #22c55e;
         color: white;
+        border: 2px solid #16a34a;
       }
       .taxi-busy {
-        background-color: red;
+        background-color: #ef4444;
         color: white;
+        border: 2px solid #dc2626;
+      }
+      .taxi-unauthorized {
+        background-color: #f97316;
+        color: white;
+        border: 2px solid #ea580c;
       }
       .customer {
-        background-color: yellow;
+        background-color: #fde047;
+        color: #1f2937;
+        border: 2px solid #eab308;
       }
       .destination {
-        background-color: lightblue;
+        background-color: #7dd3fc;
+        color: #1e40af;
+        border: 2px solid #0284c7;
+      }
+
+      /* Efectos para elementos estáticos en el grid */
+      .cell.has-customer {
+        background-color: #fef3c7;
+        animation: glow-yellow 2s ease-in-out infinite alternate;
+      }
+
+      .cell.has-destination {
+        background-color: #dbeafe;
+        animation: glow-blue 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow-yellow {
+        from {
+          box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+        }
+        to {
+          box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+        }
+      }
+
+      @keyframes glow-blue {
+        from {
+          box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+        }
+        to {
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        }
       }
 
       #info {
@@ -85,6 +159,104 @@
 
       .entry {
         margin-bottom: 15px;
+        padding: 8px;
+        background: white;
+        border-radius: 4px;
+        border-left: 4px solid #22c55e;
+        transition: all 0.3s ease;
+      }
+
+      .entry:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .customer-section .entry {
+        border-left-color: #ef4444;
+      }
+
+      .error {
+        color: red;
+        font-weight: bold;
+        padding: 20px;
+        text-align: center;
+      }
+
+      /* Indicador de conexión mejorado */
+      .status-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        padding: 8px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      #status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        transition: all 0.3s ease;
+      }
+
+      #status-indicator.connected {
+        background-color: #22c55e;
+        animation: pulse-green 2s ease-in-out infinite;
+      }
+
+      #status-indicator.connecting {
+        background-color: #f59e0b;
+        animation: pulse-orange 1s ease-in-out infinite;
+      }
+
+      #status-indicator.disconnected {
+        background-color: #ef4444;
+      }
+
+      @keyframes pulse-green {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+
+      @keyframes pulse-orange {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(1.1);
+        }
+      }
+
+      #refresh-btn {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+      }
+
+      #refresh-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(34, 197, 94, 0.4);
+      }
+
+      #refresh-btn:active {
+        transform: translateY(0);
       }
     </style>
   </head>
@@ -94,6 +266,18 @@
     </div>
     <div id="info">
       <h1>*** EASY CAB Release 2 ***</h1>
+      <div style="text-align: center; margin-bottom: 20px">
+        <div class="status-container">
+          <span id="status-indicator" class="disconnected"></span>
+          <span id="status-text">Conectando...</span>
+        </div>
+        <button id="refresh-btn" onclick="updateData()">
+          Actualizar Ahora
+        </button>
+        <div style="font-size: 0.9em; color: #666; margin-top: 8px">
+          Última actualización: <span id="last-update">Nunca</span>
+        </div>
+      </div>
       <div class="taxi-section">
         <div class="section-title">Taxis:</div>
         <div id="taxis-info"></div>
@@ -109,83 +293,360 @@
       const taxisInfo = document.getElementById("taxis-info");
       const customersInfo = document.getElementById("customers-info");
 
-      const gridData = Array.from({ length: 20 }, () => Array(20).fill(0));
+      let locationsSection = null;
+      let currentGridData = null;
+      let currentTaxisData = null;
+      let currentCustomersData = null;
+      let animatedElements = new Map(); // Para trackear elementos animados
+      let gridDimensions = { rows: 0, cols: 0, cellWidth: 0, cellHeight: 0 };
 
-      // Simulamos datos desde API
-      const taxis = [
-        [1, "OK", 5, 3, "D"],
-        [2, "BUSY", 10, 6, "E"],
-      ];
+      const statusIndicator = document.getElementById("status-indicator");
+      const statusText = document.getElementById("status-text");
+      const lastUpdateSpan = document.getElementById("last-update");
 
-      const customers = [
-        ["a", "B", 2, 4],
-        ["b", "", 15, 8],
-        ["c", "terminado", 0, 0],
-      ];
+      function updateStatus(isConnected, message) {
+        statusIndicator.className = isConnected
+          ? "connected"
+          : message === "Actualizando..."
+          ? "connecting"
+          : "disconnected";
+        statusText.textContent = message;
+        if (isConnected) {
+          lastUpdateSpan.textContent = new Date().toLocaleTimeString();
+        }
+      }
 
-      const destinations = {
-        A: [3, 5],
-        B: [11, 2],
-        C: [16, 8],
-        D: [16, 17],
-        E: [10, 19],
-        F: [5, 11],
-      };
+      function initializeGrid(rows, cols) {
+        grid.innerHTML = "";
+        gridDimensions = { rows, cols, cellWidth: 0, cellHeight: 0 };
 
-      // Pintar datos en el grid lógico
-      Object.entries(destinations).forEach(
-        ([id, [x, y]]) => (gridData[y][x] = id)
-      );
-      customers.forEach(([id, dest, x, y]) => (gridData[y][x] = id));
-      taxis.forEach(([id, status, x, y]) => (gridData[y][x] = id));
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.id = `cell-${y}-${x}`;
+            grid.appendChild(cell);
+          }
+        }
 
-      // Renderizar el grid
-      gridData.forEach((row, y) => {
-        row.forEach((val, x) => {
-          const cell = document.createElement("div");
-          cell.className = "cell";
+        // Calcular dimensiones de celda después de crear el grid
+        setTimeout(() => {
+          const firstCell = document.getElementById("cell-0-0");
+          if (firstCell) {
+            const rect = firstCell.getBoundingClientRect();
+            gridDimensions.cellWidth = rect.width;
+            gridDimensions.cellHeight = rect.height;
+          }
+        }, 100);
+      }
 
-          if (val !== 0) {
-            if (typeof val === "number") {
-              const taxi = taxis.find((t) => t[0] === val);
-              cell.classList.add(taxi[1] === "OK" ? "taxi-ok" : "taxi-busy");
-              cell.textContent = `T${val}`;
-            } else if (val.length === 1 && val.match(/[a-z]/)) {
-              cell.classList.add("customer");
-              cell.textContent = val;
-            } else {
-              cell.classList.add("destination");
-              cell.textContent = val;
-            }
+      function getCellPosition(x, y) {
+        const cell = document.getElementById(`cell-${y}-${x}`);
+        if (!cell) return { left: 0, top: 0 };
+
+        const gridRect = grid.getBoundingClientRect();
+        const cellRect = cell.getBoundingClientRect();
+
+        return {
+          left: cellRect.left - gridRect.left,
+          top: cellRect.top - gridRect.top,
+          width: cellRect.width,
+          height: cellRect.height,
+        };
+      }
+
+      function createOrUpdateAnimatedElement(
+        id,
+        x,
+        y,
+        content,
+        className,
+        taxis
+      ) {
+        const elementId = `animated-${id}`;
+        let element = document.getElementById(elementId);
+
+        const position = getCellPosition(x, y);
+
+        if (!element) {
+          // Crear nuevo elemento animado
+          element = document.createElement("div");
+          element.id = elementId;
+          element.className = `animated-element ${className}`;
+          element.textContent = content;
+          element.style.left = position.left + "px";
+          element.style.top = position.top + "px";
+          element.style.width = position.width + "px";
+          element.style.height = position.height + "px";
+
+          grid.appendChild(element);
+          animatedElements.set(id, { x, y, element });
+
+          // Efecto de aparición
+          setTimeout(() => {
+            element.style.transform = "scale(1.2)";
+            setTimeout(() => {
+              element.style.transform = "scale(1)";
+            }, 200);
+          }, 50);
+        } else {
+          // Actualizar elemento existente
+          const currentPos = animatedElements.get(id);
+
+          if (currentPos && (currentPos.x !== x || currentPos.y !== y)) {
+            // El elemento se movió - animar transición
+            element.classList.add("moving");
+            element.style.left = position.left + "px";
+            element.style.top = position.top + "px";
+
+            setTimeout(() => {
+              element.classList.remove("moving");
+            }, 800);
+
+            animatedElements.set(id, { x, y, element });
           }
 
-          grid.appendChild(cell);
+          // Actualizar contenido y estilo si es necesario
+          if (element.textContent !== content) {
+            element.textContent = content;
+          }
+
+          // Actualizar clase de estado para taxis
+          if (typeof id === "number") {
+            const taxi = taxis.find((t) => t[0] === id);
+            if (taxi) {
+              const newClassName =
+                taxi[1] === "OK"
+                  ? "taxi-ok"
+                  : taxi[1] === "BUSY"
+                  ? "taxi-busy"
+                  : "taxi-unauthorized";
+              element.className = `animated-element ${newClassName}`;
+            }
+          }
+        }
+      }
+
+      function removeAnimatedElement(id) {
+        const elementId = `animated-${id}`;
+        const element = document.getElementById(elementId);
+        if (element) {
+          // Animación de desaparición
+          element.style.transform = "scale(0)";
+          element.style.opacity = "0";
+          setTimeout(() => {
+            if (element.parentNode) {
+              element.parentNode.removeChild(element);
+            }
+          }, 300);
+          animatedElements.delete(id);
+        }
+      }
+
+      function updateCell(x, y, val, taxis) {
+        const cell = document.getElementById(`cell-${y}-${x}`);
+        if (!cell) return;
+
+        // Limpiar clases de efectos de fondo
+        cell.className = "cell";
+
+        if (val !== 0) {
+          if (typeof val === "number") {
+            // Es un taxi - crear/actualizar elemento animado
+            const taxi = taxis.find((t) => t[0] === val);
+            if (taxi) {
+              const status = taxi[1];
+              const className =
+                status === "OK"
+                  ? "taxi-ok"
+                  : status === "BUSY"
+                  ? "taxi-busy"
+                  : "taxi-unauthorized";
+              createOrUpdateAnimatedElement(
+                val,
+                x,
+                y,
+                `T${val}`,
+                className,
+                taxis
+              );
+            }
+          } else if (typeof val === "string") {
+            // Cliente o destino - crear elemento animado y efecto de fondo
+            if (val.match(/[a-z]/)) {
+              cell.classList.add("has-customer");
+              createOrUpdateAnimatedElement(val, x, y, val, "customer", taxis);
+            } else {
+              cell.classList.add("has-destination");
+              createOrUpdateAnimatedElement(
+                val,
+                x,
+                y,
+                val,
+                "destination",
+                taxis
+              );
+            }
+          }
+        }
+      }
+
+      function cleanupRemovedElements(currentElements) {
+        // Remover elementos animados que ya no están en el grid
+        const currentIds = new Set();
+
+        currentElements.forEach((row) => {
+          row.forEach((val) => {
+            if (val !== 0) {
+              currentIds.add(val);
+            }
+          });
         });
-      });
 
-      // Render taxis info
-      taxis.forEach(([id, estado, , , destino]) => {
-        const entry = document.createElement("div");
-        entry.className = "entry";
-        entry.textContent = `Id: ${id} Destino: ${destino} Estado: ${estado}`;
-        taxisInfo.appendChild(entry);
-      });
+        animatedElements.forEach((_, id) => {
+          if (!currentIds.has(id)) {
+            removeAnimatedElement(id);
+          }
+        });
+      }
 
-      // Render customers info
-      customers.forEach(([id, destino]) => {
-        const entry = document.createElement("div");
-        entry.className = "entry";
-        const estado =
-          destino === "terminado"
-            ? "Servicios terminados"
-            : destino === ""
-            ? "Sin Taxi"
-            : "OK";
-        entry.innerHTML = `
-        Id: ${id} Destino: ${destino} <br>
-        Estado: ${estado}
-      `;
-        customersInfo.appendChild(entry);
+      function arraysEqual(a, b) {
+        return JSON.stringify(a) === JSON.stringify(b);
+      }
+
+      function updateData() {
+        updateStatus(false, "Actualizando...");
+
+        fetch("http://localhost:8080/central")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Error en la respuesta del servidor");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Datos actualizados:", data);
+            updateStatus(true, "Conectado");
+
+            const gridApi = data.grid;
+            const taxis = data.taxis;
+            const customers = data.customers;
+            const locations = data.locations;
+
+            // Inicializar grid solo la primera vez
+            if (!currentGridData) {
+              initializeGrid(gridApi.length, gridApi[0].length);
+              currentGridData = Array.from({ length: gridApi.length }, () =>
+                Array(gridApi[0].length).fill(null)
+              );
+            }
+
+            // Limpiar elementos que ya no existen
+            cleanupRemovedElements(gridApi);
+
+            // Actualizar solo las celdas que cambiaron
+            gridApi.forEach((row, y) => {
+              row.forEach((val, x) => {
+                if (currentGridData[y][x] !== val) {
+                  updateCell(x, y, val, taxis);
+                  currentGridData[y][x] = val;
+                }
+              });
+            });
+
+            // Actualizar info de taxis
+            if (!arraysEqual(currentTaxisData, taxis)) {
+              taxisInfo.innerHTML = "";
+              taxis.forEach((taxi) => {
+                const [id, estado, x, y, destino] = taxi;
+                const entry = document.createElement("div");
+                entry.className = "entry";
+                entry.innerHTML = `
+                  <strong>Taxi ${id}</strong><br>
+                  Estado: ${estado} | Posición: (${x}, ${y})<br>
+                  Destino: ${destino || "Ninguno"}
+                `;
+                taxisInfo.appendChild(entry);
+              });
+              currentTaxisData = [...taxis];
+            }
+
+            // Actualizar info de clientes
+            if (!arraysEqual(currentCustomersData, customers)) {
+              customersInfo.innerHTML = "";
+              if (customers.length === 0) {
+                const entry = document.createElement("div");
+                entry.className = "entry";
+                entry.textContent = "No hay clientes activos";
+                customersInfo.appendChild(entry);
+              } else {
+                customers.forEach((customer) => {
+                  const [id, destino, x, y] = customer;
+                  const entry = document.createElement("div");
+                  entry.className = "entry";
+                  const estado =
+                    destino === "terminado"
+                      ? "Servicio terminado"
+                      : destino === ""
+                      ? "Sin Taxi"
+                      : "Esperando";
+                  entry.innerHTML = `
+                    <strong>Cliente ${id}</strong><br>
+                    Destino: ${destino} | Posición: (${x}, ${y})<br>
+                    Estado: ${estado}
+                  `;
+                  customersInfo.appendChild(entry);
+                });
+              }
+              currentCustomersData = [...customers];
+            }
+
+            // Mostrar destinos disponibles
+            if (locations && locations.length > 0 && !locationsSection) {
+              locationsSection = document.createElement("div");
+              locationsSection.innerHTML =
+                '<div class="section-title">Destinos Disponibles:</div>';
+
+              locations.forEach((location) => {
+                const [name, coords] = location;
+                const [x, y] = coords;
+                const entry = document.createElement("div");
+                entry.className = "entry";
+                entry.innerHTML = `<strong>${name}</strong><br>Coordenadas: (${x}, ${y})`;
+                locationsSection.appendChild(entry);
+              });
+
+              document.getElementById("info").appendChild(locationsSection);
+            }
+          })
+          .catch((error) => {
+            console.error("Error al hacer la petición:", error);
+            updateStatus(false, "Error de conexión");
+
+            if (grid.children.length === 0) {
+              grid.innerHTML =
+                '<div class="error">Error al cargar los datos del servidor</div>';
+            }
+          });
+      }
+
+      // Cargar datos iniciales
+      updateData();
+
+      // Actualizar automáticamente cada 3 segundos
+      setInterval(updateData, 3000);
+
+      // Reajustar posiciones si cambia el tamaño de ventana
+      window.addEventListener("resize", () => {
+        setTimeout(() => {
+          animatedElements.forEach((data, id) => {
+            const position = getCellPosition(data.x, data.y);
+            data.element.style.left = position.left + "px";
+            data.element.style.top = position.top + "px";
+            data.element.style.width = position.width + "px";
+            data.element.style.height = position.height + "px";
+          });
+        }, 100);
       });
     </script>
   </body>
