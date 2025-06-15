@@ -3,16 +3,16 @@ import socket
 from kafka import KafkaConsumer, KafkaProducer
 import pygame
 
-ipPortCentral = sys.argv[1]
-ipPortBroker = sys.argv[2]
-ipPortEcs = sys.argv[3]
-idTaxi = sys.argv[4]
+idTaxi = sys.argv[1] if len(sys.argv) > 1 else "1"
+ipPortCentral = sys.argv[2] if len(sys.argv) > 2 else "localhost:3000"
+ipPortBroker = sys.argv[3] if len(sys.argv) > 3 else "localhost:9092"
+# ipPortEcs = sys.argv[4] if len(sys.argv) > 4 else "3000"
 
 ipCentral = ipPortCentral.split(":")[0]
 portCentral = int(ipPortCentral.split(":")[1])
 
-ipEcs = ipPortEcs.split(":")[0]
-portEcs = int(ipPortEcs.split(":")[1])
+# ipEcs = ipPortEcs.split(":")[0]
+# portEcs = int(ipPortEcs.split(":")[1])
 
 # Connect to Central
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -31,10 +31,10 @@ conn = None
 # conn.setblocking(0)
 
 # # Kafka Producer
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
+producer = KafkaProducer(bootstrap_servers=f'{ipPortBroker}')
 
 # Kafka Consumer
-consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+consumer = KafkaConsumer(bootstrap_servers=f'{ipPortBroker}')
 consumer.subscribe(['centralTaxi'])
 
 # This sets the WIDTH and HEIGHT of each grid location

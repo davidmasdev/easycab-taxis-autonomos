@@ -3,8 +3,9 @@ import pygame
 from kafka import KafkaProducer, KafkaConsumer
 import time
 
-dataBroker = sys.argv[1]
-idCustomer = sys.argv[2]
+
+idCustomer = sys.argv[1] if len(sys.argv) > 1 else "a"
+dataBroker = sys.argv[2]  if len(sys.argv) > 2 else "localhost:9092"
 
 f = open("servicios.txt")
 servicios = f.read().splitlines()
@@ -19,14 +20,14 @@ font = pygame.font.SysFont('arial', 24)
 running = True
 
 # Kafka Producer
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
+producer = KafkaProducer(bootstrap_servers=f'{dataBroker}')
 nextService = True
 numService = 0
 
 producer.send('customerCentral', (f'create customer {idCustomer}').encode())
 
 # Kafka Consumer
-consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+consumer = KafkaConsumer(bootstrap_servers=f'{dataBroker}')
 consumer.subscribe(['centralCustomer'])
 
 # Initialize a list to store messages for display
