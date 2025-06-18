@@ -2,6 +2,7 @@ import sys
 import socket
 from kafka import KafkaConsumer, KafkaProducer
 import pygame
+import requests
 
 idTaxi = sys.argv[1] if len(sys.argv) > 1 else "1"
 ipPortCentral = sys.argv[2] if len(sys.argv) > 2 else "localhost:3030"
@@ -15,22 +16,52 @@ portCentral = int(ipPortCentral.split(":")[1])
 # portEcs = int(ipPortEcs.split(":")[1])
 
 # Connect to Central
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((ipCentral, portCentral))
-    s.sendall(f"{idTaxi}".encode())
-    data = s.recv(1024)
-    print(f"Received {data.decode()} from Central")
+# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#     s.connect((ipCentral, portCentral))
+#     s.sendall(f"{idTaxi}".encode())
+#     data = s.recv(1024)
+#     print(f"Received {data.decode()} from Central")
 
-# Socket server creation
+# Socket server creation (bind to a free port in range 6000-7000)
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-soc.bind(('localhost', 4000))
+for port_try in range(6000, 7001):
+    try:
+        soc.bind(('localhost', port_try))
+        port = port_try
+        print(f"EC_DE listening on port {port}")
+        break
+    except OSError:
+        continue
+else:
+    print("No free port found in range 6000-7000")
+    sys.exit(1)
+
 soc.listen(1)
 soc.setblocking(0)
 conn = None
 # conn, addr = soc.accept()
 # conn.setblocking(0)
 
-# # Kafka Producer
+# Request to the EC_Registry api
+print("Registrando en EC_Registry...")
+try:
+    response = requests.post("http://localhost:1234/register", 
+                           json={'id': str(idTaxi)},
+                           timeout=5)  # Timeout de 5 segundos
+    
+    if response.status_code == 200:
+        print(f"✓ Registration successful: {response.text}")
+    else:
+        print(f"✗ Registration failed: {response.status_code} {response.text}")
+        
+except requests.exceptions.ConnectionError:
+    print("✗ Error: No se puede conectar al EC_Registry (http://localhost:1234)")
+except requests.exceptions.Timeout:
+    print("✗ Error: Timeout conectando al EC_Registry")
+except requests.exceptions.RequestException as e:
+    print(f"✗ Network error: {e}")
+
+# Kafka Producer
 producer = KafkaProducer(bootstrap_servers=f'{ipPortBroker}')
 
 # Kafka Consumer
