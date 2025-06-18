@@ -452,8 +452,6 @@ def main():
     
     pygame.quit()
     con.close()
-    if consumer:
-        consumer.close()
     if s:
         s.close()
 
