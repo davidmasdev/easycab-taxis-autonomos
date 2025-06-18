@@ -42,6 +42,8 @@ def render_messages(screen, font, display_messages):
         y_offset += 30
     pygame.display.flip()  # Update the display
 
+cityState = 'OK'
+
 while running:
     # poll for events
     for event in pygame.event.get():
@@ -76,7 +78,7 @@ while running:
                         nextService = False
                         break
 
-                if messageSplit[0] == 'denegacion' and messageSplit[1] == str(idCustomer):
+                elif messageSplit[0] == 'denegacion' and messageSplit[1] == str(idCustomer):
                     log_message = f"Servicio {messageSplit[2]} denegado"
                     print(log_message)
                     display_messages.append(log_message)
@@ -86,17 +88,29 @@ while running:
                     nextService = True
                     numService -= 1
 
-                if messageSplit[0] == 'aceptado' and messageSplit[1] == str(idCustomer):
+                elif messageSplit[0] == 'aceptado' and messageSplit[1] == str(idCustomer):
                     log_message = f"Servicio {messageSplit[2]} aceptado"
                     print(log_message)
                     display_messages.append(log_message)
                     render_messages(screen, font, display_messages)  # Call the function to render messages
+                
+                elif messageSplit[0] == 'parar':
+                    cityState = "KO"
+                    log_message = f"Servicio detenidos. No se puede circular por la ciudad"
+                    print(log_message)
+                    display_messages.append(log_message)
+                    render_messages(screen, font, display_messages) 
 
-                    # time.sleep(5)
+                elif messageSplit[0] == 'reanudar':
+                    cityState = "OK"
                     # nextService = True
-                    # numService -= 1
+                    log_message = f"Servicio reanudados. Ya se puede circular por la ciudad"
+                    print(log_message)
+                    display_messages.append(log_message)
+                    render_messages(screen, font, display_messages) 
 
-    if nextService:
+
+    if nextService and cityState == 'OK':
         time.sleep(4)
         log_message = f"Servicio {servicios[numService]} solicitado"
         producer.send('customerCentral', (f"service {servicios[numService]} customer {idCustomer}").encode())
@@ -111,4 +125,6 @@ while running:
 
     clock.tick(60)  # limits FPS to 60
 
+producer.close()  
+consumer.close() 
 pygame.quit()

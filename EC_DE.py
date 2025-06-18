@@ -60,6 +60,8 @@ destinationPosition = []
 position = []
 
 nextService = False
+returnBase = False
+basePosition = [0,0]
 
 # Variable para almacenar el estado recibido de EC_S
 estado_ec_s = "Esperando estado..."
@@ -142,9 +144,32 @@ while running:
                             locationPosition = location[1]
                             destinationPosition = [int(item) for item in locationPosition]
                     nextService = True
+                if(messageSplit[0] == 'volver'):
+                    returnBase = True
+                if(messageSplit[0] == 'reanudar'):
+                    returnBase = False
+
+    if returnBase:
+        if position[0] < basePosition[0] and position[1] < basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]+1]}').encode())
+        elif position[0] < basePosition[0] and position[1] > basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]-1]}').encode())
+        elif position[0] > basePosition[0] and position[1] < basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]+1]}').encode())
+        elif position[0] > basePosition[0] and position[1] > basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]-1]}').encode())
+        elif position[0] < basePosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]]}').encode())
+        elif position[0] > basePosition[0]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]-1, position[1]]}').encode())
+        elif position[1] < basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]+1]}').encode())
+        elif position[1] > basePosition[1]:
+            producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
+
 
     # print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
-    if position != customerPosition and position != [] and customerPosition != [] and estado.startswith('OK'):
+    if not returnBase and position != customerPosition and position != [] and customerPosition != [] and estado.startswith('OK'):
         # print(f"Taxi {idTaxi} recogiendo a {customer}")
         if position[0] < customerPosition[0] and position[1] < customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0]+1, position[1]+1]}').encode())
@@ -163,7 +188,7 @@ while running:
         elif position[1] > customerPosition[1]:
             producer.send('taxiCentral', (f'mover {idTaxi} {[position[0], position[1]-1]}').encode())
 
-    if position == customerPosition and position != destinationPosition and estado.startswith('OK'):
+    if not returnBase and position == customerPosition and position != destinationPosition and estado.startswith('OK'):
         # print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
         if position[0] < destinationPosition[0] and position[1] < destinationPosition[1]:
             producer.send('taxiCentral', (f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]+1]}').encode())
@@ -260,5 +285,6 @@ while running:
 
 conn.close()    
 consumer.close()
+producer.close()  
 pygame.quit()
 

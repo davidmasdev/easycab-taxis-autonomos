@@ -34,7 +34,7 @@ def run_flask_app():
     app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
 
 def main():
-    global taxis, customers, locations, grid
+    global taxis, customers, locations, grid, cityState
     
     # Params
     listenPort = sys.argv[1] if len(sys.argv) > 1 else "3000"
@@ -130,6 +130,9 @@ def main():
         print(f"Error creando socket: {e}")
         s = None
 
+    lastApiCall = 0 
+    cityState = 'OK'
+
     # Game loop
     while running:
         # poll for events
@@ -173,6 +176,31 @@ def main():
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
+
+        # CTC api request
+        changeState = False
+        if time.time() - lastApiCall >= 10:
+            response = requests.get("http://localhost:5050/estado")
+            if response.ok:
+                data = response.json()
+                if cityState != data['estado']:
+                    changeState = True
+                cityState = data['estado']
+
+        # Check if cityState is KO and make taxis go to base
+        if changeState and cityState == "KO":
+            for taxi in taxis:
+                if taxi[1] != "Sin autenticar":
+                    producer.send('centralTaxi', (f'volver base').encode())
+                    cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', ('', 'OK. Volver a base', taxi[0]))
+            producer.send('centralCustomer', (f'parar servicios').encode())
+        elif changeState and cityState == "OK":
+                for taxi in taxis:
+                    if taxi[1] != "Sin autenticar":
+                        cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', ('', 'OK', taxi[0]))
+                producer.send('centralCustomer', (f'reanudar servicios').encode())
+                producer.send('centralTaxi', (f'reanudar servicios').encode())
+
 
         # Get taxis from db
         try:
@@ -406,6 +434,10 @@ def main():
                 info_y += 40
             info_y += 40
 
+        # Render city state
+        city_state_text = font.render(f"cityState: {cityState}", True, (255, 255, 255))  # Blanco
+        screen.blit(city_state_text, (10, 10))  # Posición en la pantalla
+
         pygame.display.flip()
         clock.tick(60)
 
@@ -422,6 +454,9 @@ def main():
         consumer.close()
     if s:
         s.close()
+
+    producer.close()  
+    consumer.close() 
 
 if __name__ == "__main__":
     main()

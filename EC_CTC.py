@@ -1,5 +1,7 @@
 import requests
-from flask import Flask, jsonify
+import threading
+import time
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -9,47 +11,51 @@ CORS(app)
 API_KEY = "7f49d719db92256be845cf81ab1a59f6"
 city = "Madrid"
 state = "OK"
+server_running = False
 
-def update_state():
+def update_state(silent=False):
     """Actualiza el estado basado en la temperatura de la ciudad actual"""
     global state
     try:
-        # Corregir la URL con f-string
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
         response = requests.get(url, timeout=10)
-        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        response.raise_for_status()
         
         datos = response.json()
-        print(f"Datos recibidos para {city}: {datos}")
+        if not silent:
+            print(f"Datos recibidos para {city}: {datos}")
         
-        # Verificar si la respuesta contiene los datos esperados
         if "main" in datos and "temp" in datos["main"]:
             temp = datos["main"]["temp"]
-            print(f"Temperatura en {city}: {temp}°C")
+            if not silent:
+                print(f"Temperatura en {city}: {temp}°C")
             
-            # Actualizar estado basado en temperatura
             if temp < 0:
                 state = "KO"
             else:
                 state = "OK"
         else:
-            print("Error: No se encontraron datos de temperatura")
+            if not silent:
+                print("Error: No se encontraron datos de temperatura")
             state = "ERROR"
             
     except requests.exceptions.RequestException as e:
-        print(f"Error en la petición: {e}")
+        if not silent:
+            print(f"Error en la petición: {e}")
         state = "ERROR"
     except KeyError as e:
-        print(f"Error en los datos recibidos: {e}")
+        if not silent:
+            print(f"Error en los datos recibidos: {e}")
         state = "ERROR"
     except Exception as e:
-        print(f"Error inesperado: {e}")
+        if not silent:
+            print(f"Error inesperado: {e}")
         state = "ERROR"
 
 @app.route("/estado")
 def estado():
     """Endpoint que devuelve el estado actual"""
-    update_state()
+    update_state(silent=True)  # Modo silencioso para evitar spam en consola
     return jsonify({
         "ciudad": city,
         "estado": state
@@ -67,40 +73,73 @@ def cambiar_ciudad(nueva_ciudad):
         "estado": state
     })
 
-def main():
-    """Función principal que maneja la entrada del usuario"""
+@app.route("/cambiar_ciudad", methods=['POST'])
+def cambiar_ciudad_post():
+    """Endpoint POST para cambiar la ciudad"""
     global city
+    data = request.get_json()
+    if not data or 'ciudad' not in data:
+        return jsonify({"error": "Se requiere el campo 'ciudad'"}), 400
     
-    print("=== SERVIDOR METEOROLÓGICO ===")
+    city = data['ciudad']
+    print(f'Nueva ciudad: {city}')
+    update_state()
+    return jsonify({
+        "mensaje": f"Ciudad cambiada a {city}",
+        "estado": state
+    })
+
+@app.route("/info")
+def info():
+    """Endpoint que muestra información sobre el servidor"""
+    return jsonify({
+        "servidor": "Servidor Meteorológico Flask",
+        "ciudad_actual": city,
+        "estado_actual": state,
+        "endpoints": {
+            "GET /estado": "Obtiene el estado actual",
+            "GET /cambiar_ciudad/<ciudad>": "Cambia la ciudad",
+            "POST /cambiar_ciudad": "Cambia la ciudad (JSON: {'ciudad': 'nombre'})",
+            "GET /info": "Muestra esta información"
+        }
+    })
+
+def console_interface():
+    """Interfaz de consola que se ejecuta en paralelo al servidor"""
+    global city, server_running
+    
+    print("\n=== CONSOLA INTERACTIVA ===")
+    print("El servidor Flask está funcionando en segundo plano")
     print("Comandos disponibles:")
     print("  - Escribe el nombre de una ciudad para cambiarla")
-    print("  - 'servidor' para iniciar el servidor web")
     print("  - 'estado' para ver el estado actual")
-    print("  - 'salir' para cerrar")
+    print("  - 'info' para ver información del servidor")
+    print("  - 'salir' para cerrar todo")
     print()
     
-    while True:
+    while server_running:
         try:
             opt = input("Comando: ").strip()
             
             if opt.lower() == "salir":
-                print("¡Hasta luego!")
+                print("Cerrando servidor...")
+                server_running = False
                 break
                 
-            elif opt.lower() == "servidor":
-                print("Iniciando servidor Flask...")
-                print("Accede a http://localhost:5050/estado para ver el estado")
-                print("Accede a http://localhost:5050/cambiar_ciudad/NombreCiudad para cambiar la ciudad")
-                print("Presiona Ctrl+C para detener el servidor y volver al menú")
-                try:
-                    app.run(host='0.0.0.0', port=5050, debug=False)
-                except KeyboardInterrupt:
-                    print("\nServidor detenido. Volviendo al menú...")
-                    
             elif opt.lower() == "estado":
                 update_state()
                 print(f"Ciudad: {city}")
                 print(f"Estado: {state}")
+                
+            elif opt.lower() == "info":
+                print(f"Servidor ejecutándose en: http://localhost:5050")
+                print(f"Ciudad actual: {city}")
+                print(f"Estado actual: {state}")
+                print("Endpoints disponibles:")
+                print("  - GET /estado")
+                print("  - GET /cambiar_ciudad/<ciudad>")
+                print("  - POST /cambiar_ciudad")
+                print("  - GET /info")
                 
             elif opt != "":
                 city = opt
@@ -109,10 +148,44 @@ def main():
                 print(f"Estado actualizado: {state}")
                 
         except KeyboardInterrupt:
-            print("\n¡Hasta luego!")
+            print("\nCerrando servidor...")
+            server_running = False
             break
         except Exception as e:
             print(f"Error: {e}")
+
+def run_flask_server():
+    """Ejecuta el servidor Flask"""
+    import logging
+    # Desabilitar logs de Flask para requests automáticos
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    
+    try:
+        app.run(host='0.0.0.0', port=5050, debug=False, use_reloader=False)
+    except Exception as e:
+        print(f"Error en el servidor: {e}")
+
+def main():
+    """Función principal"""
+    global server_running
+    
+    print("=== SERVIDOR METEOROLÓGICO CON CONSOLA INTERACTIVA ===")
+    
+    # Servidor con consola interactiva
+    server_running = True
+    
+    # Iniciar el servidor Flask en un hilo separado
+    server_thread = threading.Thread(target=run_flask_server, daemon=True)
+    server_thread.start()
+    
+    # Esperar un poco para que el servidor se inicie
+    time.sleep(2)
+    print(f"\n✅ Servidor Flask iniciado en http://localhost:5050")
+    print("📡 Puedes usar los endpoints web Y la consola interactiva")
+    
+    # Ejecutar la consola interactiva en el hilo principal
+    console_interface()
 
 if __name__ == "__main__":
     main()
