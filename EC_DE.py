@@ -4,9 +4,9 @@ from kafka import KafkaConsumer, KafkaProducer
 import pygame
 
 idTaxi = sys.argv[1] if len(sys.argv) > 1 else "1"
-ipPortCentral = sys.argv[2] if len(sys.argv) > 2 else "localhost:3000"
+ipPortCentral = sys.argv[2] if len(sys.argv) > 2 else "localhost:3030"
 ipPortBroker = sys.argv[3] if len(sys.argv) > 3 else "localhost:9092"
-# ipPortEcs = sys.argv[4] if len(sys.argv) > 4 else "3000"
+# ipPortEcs = sys.argv[4] if len(sys.argv) > 4 else "4040"
 
 ipCentral = ipPortCentral.split(":")[0]
 portCentral = int(ipPortCentral.split(":")[1])

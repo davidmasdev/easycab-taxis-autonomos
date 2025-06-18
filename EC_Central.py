@@ -21,12 +21,13 @@ CORS(app)
 
 @app.route("/central")
 def central():
-    global taxis, customers, locations, grid
+    global taxis, customers, locations, grid, cityState
     return jsonify({
         "grid": grid,
         "taxis": taxis,
         "customers": customers,
-        "locations": locations
+        "locations": locations,
+        "cityState": cityState
     })
 
 def run_flask_app():
@@ -37,7 +38,7 @@ def main():
     global taxis, customers, locations, grid, cityState
     
     # Params
-    listenPort = sys.argv[1] if len(sys.argv) > 1 else "3000"
+    listenPort = sys.argv[1] if len(sys.argv) > 1 else "3030"
     dataBroker = sys.argv[2] if len(sys.argv) > 2 else "localhost:9092"
     database = sys.argv[3] if len(sys.argv) > 3 else "database.db"
     locationParam = sys.argv[4] if len(sys.argv) > 4 else "mapa.txt"
@@ -437,26 +438,38 @@ def main():
             info_y += 40
 
         # Render city state
-        city_state_text = font.render(f"cityState: {cityState}", True, (255, 255, 255))  # Blanco
+        city_state_text = font.render(f"Estado de la ciudad: {cityState}", True, (255, 255, 255))  # Blanco
         screen.blit(city_state_text, (10, 10))  # Posición en la pantalla
 
         pygame.display.flip()
         clock.tick(60)
 
     # Cleanup
-    try:
-        cur.execute('DROP TABLE taxis')
-        con.commit()
-    except:
-        pass
-    
     pygame.quit()
-    con.close()
-    if s:
-        s.close()
-
-    producer.close()  
-    consumer.close() 
+    try:
+        if con:
+            # Reset the sequence BEFORE dropping the table
+            cur.execute('DELETE FROM sqlite_sequence WHERE name="taxis"')
+            cur.execute('DROP TABLE IF EXISTS taxis')
+            con.commit()
+            con.close()
+    except Exception as e:
+        print(f"Error cerrando la base de datos: {e}")
+    try:
+        if s:
+            s.close()
+    except Exception as e:
+        print(f"Error cerrando el socket: {e}")
+    try:
+        if producer:
+            producer.close()
+    except Exception as e:
+        print(f"Error cerrando Kafka Producer: {e}")
+    try:
+        if consumer:
+            consumer.close()
+    except Exception as e:
+        print(f"Error cerrando Kafka Consumer: {e}")
 
 if __name__ == "__main__":
     main()

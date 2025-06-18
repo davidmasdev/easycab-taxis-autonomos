@@ -6,6 +6,7 @@ function App() {
   const [taxisData, setTaxisData] = useState([]);
   const [customersData, setCustomersData] = useState([]);
   const [locationsData, setLocationsData] = useState([]);
+  const [cityState, setCityState] = useState(""); // Nuevo estado para el estado de la ciudad
   const [connectionStatus, setConnectionStatus] = useState({
     connected: false,
     message: "Conectando...",
@@ -63,6 +64,7 @@ function App() {
       setTaxisData(data.taxis);
       setCustomersData(data.customers);
       setLocationsData(data.locations || []);
+      setCityState(data.cityState || ""); // Actualizar el estado de la ciudad
 
       // Calcular dimensiones del grid
       if (data.grid && data.grid.length > 0) {
@@ -219,6 +221,16 @@ function App() {
 
       <div id="info">
         <h1>*** EASY CAB Release 2 ***</h1>
+
+        {/* Mostrar el estado de la ciudad */}
+        <div className="city-state-section">
+          <div
+            className="section-title"
+            style={{ color: cityState === "KO" ? "red" : "green" }}
+          >
+            Estado de la ciudad: {cityState}
+          </div>
+        </div>
 
         {/* <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <div className="status-container">
