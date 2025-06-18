@@ -103,7 +103,8 @@ while running:
 
                 elif messageSplit[0] == 'reanudar':
                     cityState = "OK"
-                    # nextService = True
+                    nextService = True
+                    numService -= 1
                     log_message = f"Servicio reanudados. Ya se puede circular por la ciudad"
                     print(log_message)
                     display_messages.append(log_message)

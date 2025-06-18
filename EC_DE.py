@@ -146,6 +146,10 @@ while running:
                     nextService = True
                 if(messageSplit[0] == 'volver'):
                     returnBase = True
+                    customer = ''
+                    customerPosition = []
+                    destination = []
+                    destinationPosition = []
                 if(messageSplit[0] == 'reanudar'):
                     returnBase = False
 

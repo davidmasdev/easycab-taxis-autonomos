@@ -194,6 +194,8 @@ def main():
                     producer.send('centralTaxi', (f'volver base').encode())
                     cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', ('', 'OK. Volver a base', taxi[0]))
             producer.send('centralCustomer', (f'parar servicios').encode())
+            for customer in customers:
+                customer[1] = ''
         elif changeState and cityState == "OK":
                 for taxi in taxis:
                     if taxi[1] != "Sin autenticar":
