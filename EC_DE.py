@@ -15,12 +15,31 @@ portCentral = int(ipPortCentral.split(":")[1])
 # ipEcs = ipPortEcs.split(":")[0]
 # portEcs = int(ipPortEcs.split(":")[1])
 
+# Request to the EC_Registry api
+print("Registrando en EC_Registry...")
+try:
+    response = requests.post("http://localhost:1234/register", 
+                           json={'id': str(idTaxi)},
+                           timeout=5)  # Timeout de 5 segundos
+    
+    if response.status_code == 200:
+        print(f"✓ Registration successful: {response.text}")
+    else:
+        print(f"✗ Registration failed: {response.status_code} {response.text}")
+        
+except requests.exceptions.ConnectionError:
+    print("✗ Error: No se puede conectar al EC_Registry (http://localhost:1234)")
+except requests.exceptions.Timeout:
+    print("✗ Error: Timeout conectando al EC_Registry")
+except requests.exceptions.RequestException as e:
+    print(f"✗ Network error: {e}")
+
 # Connect to Central
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.connect((ipCentral, portCentral))
-#     s.sendall(f"{idTaxi}".encode())
-#     data = s.recv(1024)
-#     print(f"Received {data.decode()} from Central")
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((ipCentral, portCentral))
+    s.sendall(f"{idTaxi}".encode())
+    data = s.recv(1024)
+    print(f"Received {data.decode()} from Central")
 
 # Socket server creation (bind to a free port in range 6000-7000)
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,24 +61,7 @@ conn = None
 # conn, addr = soc.accept()
 # conn.setblocking(0)
 
-# Request to the EC_Registry api
-print("Registrando en EC_Registry...")
-try:
-    response = requests.post("http://localhost:1234/register", 
-                           json={'id': str(idTaxi)},
-                           timeout=5)  # Timeout de 5 segundos
-    
-    if response.status_code == 200:
-        print(f"✓ Registration successful: {response.text}")
-    else:
-        print(f"✗ Registration failed: {response.status_code} {response.text}")
-        
-except requests.exceptions.ConnectionError:
-    print("✗ Error: No se puede conectar al EC_Registry (http://localhost:1234)")
-except requests.exceptions.Timeout:
-    print("✗ Error: Timeout conectando al EC_Registry")
-except requests.exceptions.RequestException as e:
-    print(f"✗ Network error: {e}")
+
 
 # Kafka Producer
 producer = KafkaProducer(bootstrap_servers=f'{ipPortBroker}')

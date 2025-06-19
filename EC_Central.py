@@ -70,20 +70,16 @@ def main():
     con = sqlite3.connect(database, check_same_thread=False)
     cur = con.cursor()
     
-    # Crear tabla si no existe, sin AUTOINCREMENT
-    cur.execute('CREATE TABLE IF NOT EXISTS taxis (id INTEGER PRIMARY KEY, estado TEXT, posX INTEGER, posY INTEGER, destino TEXT)')
+    # Eliminar la tabla si existe y crearla de nuevo desde cero
+    cur.execute('DROP TABLE IF EXISTS taxis')
+    cur.execute('CREATE TABLE taxis (id INTEGER PRIMARY KEY, estado TEXT, posX INTEGER, posY INTEGER, destino TEXT)')
     
-    # Verificar si ya hay datos en la tabla
-    cur.execute('SELECT COUNT(*) FROM taxis')
-    count = cur.fetchone()[0]
-    
-    if count == 0:
-        # Solo insertar si la tabla está vacía, asignando IDs manualmente
-        cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (1, 'Sin autenticar', 0, 0, ''))
-        cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (2, 'Sin autenticar', 0, 0, ''))
-        cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (3, 'Sin autenticar', 0, 0, ''))
-        cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (4, 'Sin autenticar', 0, 0, ''))
-        con.commit()
+    # Insertar taxis con IDs manualmente
+    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (1, 'Sin autenticar', 0, 0, ''))
+    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (2, 'Sin autenticar', 0, 0, ''))
+    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (3, 'Sin autenticar', 0, 0, ''))
+    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (4, 'Sin autenticar', 0, 0, ''))
+    con.commit()
 
     # This sets the WIDTH and HEIGHT of each grid location
     WIDTH = 20
