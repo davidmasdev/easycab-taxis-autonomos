@@ -1,6 +1,7 @@
 import pygame
 import sys
-import sqlite3
+import mysql.connector
+from mysql.connector import Error
 from kafka import KafkaConsumer, KafkaProducer
 import random
 import socket
@@ -34,14 +35,71 @@ def run_flask_app():
     """Función para ejecutar Flask en un hilo separado"""
     app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
 
+def create_mysql_connection(host='localhost', database='easycab', user='easycab_user', password='Easycab23!'):
+    """Crear conexión a MySQL"""
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            autocommit=True
+        )
+        print("Conexión exitosa a MySQL")
+    except Error as e:
+        print(f"Error conectando a MySQL: {e}")
+    return connection
+
+def setup_database(connection):
+    """Configurar la base de datos y tabla de taxis"""
+    if connection is None:
+        return None
+    
+    try:
+        cursor = connection.cursor()
+        
+        # Eliminar la tabla si existe y crearla de nuevo desde cero
+        cursor.execute('DROP TABLE IF EXISTS taxis')
+        cursor.execute('''
+            CREATE TABLE taxis (
+                id INT PRIMARY KEY,
+                estado VARCHAR(255),
+                posX INT,
+                posY INT,
+                destino VARCHAR(255)
+            )
+        ''')
+        
+        # Insertar taxis con IDs manualmente
+        cursor.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (%s, %s, %s, %s, %s)', 
+                      (1, 'Sin autenticar', 0, 0, ''))
+        cursor.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (%s, %s, %s, %s, %s)', 
+                      (2, 'Sin autenticar', 0, 0, ''))
+        cursor.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (%s, %s, %s, %s, %s)', 
+                      (3, 'Sin autenticar', 0, 0, ''))
+        cursor.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (%s, %s, %s, %s, %s)', 
+                      (4, 'Sin autenticar', 0, 0, ''))
+        
+        print("Base de datos configurada correctamente")
+        return cursor
+        
+    except Error as e:
+        print(f"Error configurando la base de datos: {e}")
+        return None
+
 def main():
     global taxis, customers, locations, grid, cityState
     
     # Params
     listenPort = sys.argv[1] if len(sys.argv) > 1 else "3030"
     dataBroker = sys.argv[2] if len(sys.argv) > 2 else "localhost:9092"
-    database = sys.argv[3] if len(sys.argv) > 3 else "database.db"
-    locationParam = sys.argv[4] if len(sys.argv) > 4 else "mapa.txt"
+    # Parámetros para MySQL
+    mysql_host = sys.argv[3] if len(sys.argv) > 3 else "localhost"
+    mysql_database = sys.argv[4] if len(sys.argv) > 4 else "easycab"
+    mysql_user = sys.argv[5] if len(sys.argv) > 5 else "easycab_user"
+    mysql_password = sys.argv[6] if len(sys.argv) > 6 else "Easycab23!"
+    locationParam = sys.argv[7] if len(sys.argv) > 7 else "mapa.txt"
 
     # Iniciar Flask en un hilo separado
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
@@ -67,19 +125,15 @@ def main():
         ]
 
     # Database treatment
-    con = sqlite3.connect(database, check_same_thread=False)
-    cur = con.cursor()
+    con = create_mysql_connection(mysql_host, mysql_database, mysql_user, mysql_password)
+    if con is None:
+        print("No se pudo conectar a MySQL. Saliendo...")
+        return
     
-    # Eliminar la tabla si existe y crearla de nuevo desde cero
-    cur.execute('DROP TABLE IF EXISTS taxis')
-    cur.execute('CREATE TABLE taxis (id INTEGER PRIMARY KEY, estado TEXT, posX INTEGER, posY INTEGER, destino TEXT)')
-    
-    # Insertar taxis con IDs manualmente
-    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (1, 'Sin autenticar', 0, 0, ''))
-    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (2, 'Sin autenticar', 0, 0, ''))
-    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (3, 'Sin autenticar', 0, 0, ''))
-    cur.execute('INSERT INTO taxis (id, estado, posX, posY, destino) VALUES (?, ?, ?, ?, ?)', (4, 'Sin autenticar', 0, 0, ''))
-    con.commit()
+    cur = setup_database(con)
+    if cur is None:
+        print("No se pudo configurar la base de datos. Saliendo...")
+        return
 
     # This sets the WIDTH and HEIGHT of each grid location
     WIDTH = 20
@@ -140,36 +194,40 @@ def main():
                 if event.key == pygame.K_p:  # Press 'P' to stop a taxi
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a detener: "))
-                        cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', ('KO', taxi_id))
-                        con.commit()
+                        cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('KO', taxi_id))
                         print(f"Taxi {taxi_id} ha sido detenido.")
                     except ValueError:
                         print("ID inválido")
+                    except Error as e:
+                        print(f"Error actualizando taxi: {e}")
                 elif event.key == pygame.K_r:  # Press 'R' to resume a taxi
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a reanudar: "))
-                        cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', ('OK', taxi_id))
-                        con.commit()
+                        cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('OK', taxi_id))
                         print(f"Taxi {taxi_id} ha reanudado el servicio.")
                     except ValueError:
                         print("ID inválido")
+                    except Error as e:
+                        print(f"Error actualizando taxi: {e}")
                 elif event.key == pygame.K_d:  # Press 'D' to send a taxi to a destination
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi: "))
                         new_destination = input("Ingrese el nuevo destino (Letra mayúscula): ")
-                        cur.execute('UPDATE taxis SET destino = ? WHERE id = ?', (str(new_destination), taxi_id))
-                        con.commit()
+                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', (str(new_destination), taxi_id))
                         print(f"Taxi {taxi_id} ahora se dirige a {new_destination}.")
                     except ValueError:
                         print("ID inválido")
+                    except Error as e:
+                        print(f"Error actualizando taxi: {e}")
                 elif event.key == pygame.K_b:  # Press 'B' to send a taxi back to base
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
-                        cur.execute('UPDATE taxis SET destino = ? WHERE id = ?', ('[0,0]', taxi_id))
-                        con.commit()
+                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
                         print(f"Taxi {taxi_id} está volviendo a la base.")
                     except ValueError:
                         print("ID inválido")
+                    except Error as e:
+                        print(f"Error actualizando taxi: {e}")
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
@@ -177,35 +235,49 @@ def main():
         # CTC api request
         changeState = False
         if time.time() - lastApiCall >= 10:
-            response = requests.get("http://localhost:5050/estado")
-            if response.ok:
-                data = response.json()
-                if cityState != data['estado']:
-                    changeState = True
-                cityState = data['estado']
+            try:
+                response = requests.get("http://localhost:5050/estado")
+                if response.ok:
+                    data = response.json()
+                    if cityState != data['estado']:
+                        changeState = True
+                    cityState = data['estado']
+                lastApiCall = time.time()
+            except Exception as e:
+                print(f"Error consultando API CTC: {e}")
 
         # Check if cityState is KO and make taxis go to base
         if changeState and cityState == "KO":
             for taxi in taxis:
                 if taxi[1] != "Sin autenticar":
-                    producer.send('centralTaxi', (f'volver base').encode())
-                    cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', ('', 'OK. Volver a base', taxi[0]))
-            producer.send('centralCustomer', (f'parar servicios').encode())
+                    if producer:
+                        producer.send('centralTaxi', (f'volver base').encode())
+                    try:
+                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
+                                   ('', 'OK. Volver a base', taxi[0]))
+                    except Error as e:
+                        print(f"Error actualizando taxi en base: {e}")
+            if producer:
+                producer.send('centralCustomer', (f'parar servicios').encode())
             for customer in customers:
                 customer[1] = ''
         elif changeState and cityState == "OK":
-                for taxi in taxis:
-                    if taxi[1] != "Sin autenticar":
-                        cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', ('', 'OK', taxi[0]))
+            for taxi in taxis:
+                if taxi[1] != "Sin autenticar":
+                    try:
+                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
+                                   ('', 'OK', taxi[0]))
+                    except Error as e:
+                        print(f"Error actualizando taxi: {e}")
+            if producer:
                 producer.send('centralCustomer', (f'reanudar servicios').encode())
                 producer.send('centralTaxi', (f'reanudar servicios').encode())
 
-
         # Get taxis from db
         try:
-            res = cur.execute("SELECT * FROM taxis")
-            taxis = res.fetchall()
-        except Exception as e:
+            cur.execute("SELECT * FROM taxis")
+            taxis = cur.fetchall()
+        except Error as e:
             print(f"Error accediendo a la base de datos: {e}")
             taxis = []
 
@@ -221,8 +293,11 @@ def main():
                     for taxi in taxis:
                         if str(taxi[0]) == data:
                             print(f"Taxi {data} autenticado y operativo")
-                            cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', ('Esperando estado...', taxi[0]))
-                            con.commit()
+                            try:
+                                cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', 
+                                           ('Esperando estado...', taxi[0]))
+                            except Error as e:
+                                print(f"Error actualizando estado del taxi: {e}")
                             conn.sendall(("Taxi autenticado").encode())
                 conn.close()
             except BlockingIOError:
@@ -273,8 +348,12 @@ def main():
                                         for taxi in taxis:
                                             print(taxi)
                                             if(taxi[4] == '' and taxi[1] == 'OK'):
-                                                cur.execute('UPDATE taxis SET destino = ?, estado = ? WHERE id = ?', (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
-                                                con.commit()
+                                                try:
+                                                    cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
+                                                               (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
+                                                except Error as e:
+                                                    print(f"Error asignando servicio: {e}")
+                                                    continue
                                                 if producer:
                                                     producer.send('centralTaxi', (f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}').encode())
                                                     producer.send('centralCustomer', (f'aceptado {customer[0]} {customer[1]}').encode())
@@ -290,22 +369,31 @@ def main():
                                     if messageSplit[1] == 'juntos' and str(taxi[0]) == messageSplit[3]:
                                         newPos = eval(message[message.find('['):message.find(']')+1])
                                         print(newPos[0], newPos[1])
-                                        cur.execute('UPDATE taxis SET posX = ?, posY = ? WHERE id = ?', (newPos[0], newPos[1], taxi[0]))
-                                        con.commit()
+                                        try:
+                                            cur.execute('UPDATE taxis SET posX = %s, posY = %s WHERE id = %s', 
+                                                       (newPos[0], newPos[1], taxi[0]))
+                                        except Error as e:
+                                            print(f"Error moviendo taxi: {e}")
                                         for customer in customers:
                                             if customer[0] == messageSplit[2]:
                                                 customer[2] = [newPos[0], newPos[1]]
 
                                     elif str(taxi[0]) == messageSplit[1]:
                                         newPos = eval(message[message.find('['):message.find(']')+1])
-                                        cur.execute('UPDATE taxis SET posX = ?, posY = ? WHERE id = ?', (newPos[0], newPos[1], taxi[0]))
-                                        con.commit()
+                                        try:
+                                            cur.execute('UPDATE taxis SET posX = %s, posY = %s WHERE id = %s', 
+                                                       (newPos[0], newPos[1], taxi[0]))
+                                        except Error as e:
+                                            print(f"Error moviendo taxi: {e}")
                             
                             if(messageSplit[0] == 'terminado'):
                                 if producer:
                                     producer.send('centralCustomer', (f'servicio terminado {messageSplit[1]} {messageSplit[2]}').encode())
-                                cur.execute('UPDATE taxis SET estado = ?, destino = ? WHERE id = ?', ('OK', '', messageSplit[3]))
-                                con.commit()
+                                try:
+                                    cur.execute('UPDATE taxis SET estado = %s, destino = %s WHERE id = %s', 
+                                               ('OK', '', messageSplit[3]))
+                                except Error as e:
+                                    print(f"Error terminando servicio: {e}")
                                 for customer in customers:
                                     if customer[0] == messageSplit[1]:
                                         customer[1] = ''
@@ -315,14 +403,17 @@ def main():
                                 for customer in customers:
                                     if customer[0] == messageSplit[1]:
                                         customer[1] = 'terminado'
-                                        print(f'Customer {messageSplit[0]} ha terminado todos los servicios')
+                                        print(f'Customer {messageSplit[1]} ha terminado todos los servicios')
                                         
                             if(messageSplit[0] == 'cambio'):
                                 for taxi in taxis:
                                     if str(taxi[0]) == messageSplit[1]:
                                         new_state = ' '.join(messageSplit[3:])
-                                        cur.execute('UPDATE taxis SET estado = ? WHERE id = ?', (new_state, taxi[0]))
-                                        con.commit()
+                                        try:
+                                            cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', 
+                                                       (new_state, taxi[0]))
+                                        except Error as e:
+                                            print(f"Error cambiando estado del taxi: {e}")
                                         print(f'Taxi {messageSplit[1]} ha cambiado su estado a {new_state}')
             except Exception as e:
                 print(f"Error procesando mensajes Kafka: {e}")
@@ -443,13 +534,13 @@ def main():
     # Cleanup
     pygame.quit()
     try:
-        if con:
-            # Reset the sequence BEFORE dropping the table
-            cur.execute('DELETE FROM sqlite_sequence WHERE name="taxis"')
+        if cur:
             cur.execute('DROP TABLE IF EXISTS taxis')
-            con.commit()
+            cur.close()
+        if con and con.is_connected():
             con.close()
-    except Exception as e:
+            print("Conexión MySQL cerrada")
+    except Error as e:
         print(f"Error cerrando la base de datos: {e}")
     try:
         if s:
