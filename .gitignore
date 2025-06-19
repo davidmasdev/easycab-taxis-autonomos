@@ -24,3 +24,26 @@ frontend/.env.production.local
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
+
+
+
+
+# dependencies
+frontend-audit/node_modules
+frontend-audit/.pnp
+frontend-audit/.pnp.js
+
+
+frontend-audit/coverage
+
+frontend-audit/build
+
+frontend-audit/.DS_Store
+frontend-audit/.env.local
+frontend-audit/.env.development.local
+frontend-audit/.env.test.local
+frontend-audit/.env.production.local
+
+frontend-audit/npm-debug.log*
+frontend-audit/yarn-debug.log*
+frontend-audit/yarn-error.log*

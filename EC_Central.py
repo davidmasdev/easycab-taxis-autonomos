@@ -10,6 +10,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import threading
 import time
+import logging
+from datetime import datetime
 
 # Variables globales para compartir datos entre hilos
 taxis = []
@@ -88,6 +90,29 @@ def setup_database(connection):
         print(f"Error configurando la base de datos: {e}")
         return None
 
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+# Configuración del logger de auditoría
+logging.basicConfig(
+    filename='audit.log',
+    level=logging.INFO,
+    format='%(asctime)s | %(ip)s | %(action)s | %(description)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+def audit_event(action, description, ip=None):
+    if ip is None:
+        ip = get_local_ip()
+    logging.info('', extra={'ip': ip, 'action': action, 'description': description})
+
 def main():
     global taxis, customers, locations, grid, cityState
     
@@ -105,6 +130,7 @@ def main():
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
     print("Flask API iniciada en http://localhost:8080")
+    audit_event('FlaskStart', 'API Flask iniciada en http://localhost:8080')
 
     # Locations treatment
     try:
@@ -128,11 +154,13 @@ def main():
     con = create_mysql_connection(mysql_host, mysql_database, mysql_user, mysql_password)
     if con is None:
         print("No se pudo conectar a MySQL. Saliendo...")
+        audit_event('DBError', 'No se pudo conectar a MySQL', ip=get_local_ip())
         return
     
     cur = setup_database(con)
     if cur is None:
         print("No se pudo configurar la base de datos. Saliendo...")
+        audit_event('DBError', 'No se pudo configurar la base de datos', ip=get_local_ip())
         return
 
     # This sets the WIDTH and HEIGHT of each grid location
@@ -177,8 +205,10 @@ def main():
         s.listen(1)
         s.setblocking(0)
         print(f"Socket servidor iniciado en puerto {listenPort}")
+        audit_event('SocketStart', f'Socket servidor iniciado en puerto {listenPort}')
     except Exception as e:
         print(f"Error creando socket: {e}")
+        audit_event('SocketError', f'Error creando socket: {e}')
         s = None
 
     lastApiCall = 0 
@@ -190,44 +220,57 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                audit_event('Shutdown', 'Aplicación cerrada por usuario')
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:  # Press 'P' to stop a taxi
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a detener: "))
                         cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('KO', taxi_id))
                         print(f"Taxi {taxi_id} ha sido detenido.")
+                        audit_event('TaxiStop', f'Taxi {taxi_id} detenido')
                     except ValueError:
                         print("ID inválido")
+                        audit_event('InputError', 'ID inválido al detener taxi')
                     except Error as e:
                         print(f"Error actualizando taxi: {e}")
+                        audit_event('DBError', f'Error actualizando taxi: {e}')
                 elif event.key == pygame.K_r:  # Press 'R' to resume a taxi
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a reanudar: "))
                         cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('OK', taxi_id))
                         print(f"Taxi {taxi_id} ha reanudado el servicio.")
+                        audit_event('TaxiResume', f'Taxi {taxi_id} reanudado')
                     except ValueError:
                         print("ID inválido")
+                        audit_event('InputError', 'ID inválido al reanudar taxi')
                     except Error as e:
                         print(f"Error actualizando taxi: {e}")
+                        audit_event('DBError', f'Error actualizando taxi: {e}')
                 elif event.key == pygame.K_d:  # Press 'D' to send a taxi to a destination
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi: "))
                         new_destination = input("Ingrese el nuevo destino (Letra mayúscula): ")
                         cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', (str(new_destination), taxi_id))
                         print(f"Taxi {taxi_id} ahora se dirige a {new_destination}.")
+                        audit_event('TaxiDestination', f'Taxi {taxi_id} enviado a {new_destination}')
                     except ValueError:
                         print("ID inválido")
+                        audit_event('InputError', 'ID inválido al asignar destino taxi')
                     except Error as e:
                         print(f"Error actualizando taxi: {e}")
+                        audit_event('DBError', f'Error actualizando taxi: {e}')
                 elif event.key == pygame.K_b:  # Press 'B' to send a taxi back to base
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
                         cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
                         print(f"Taxi {taxi_id} está volviendo a la base.")
+                        audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
                     except ValueError:
                         print("ID inválido")
+                        audit_event('InputError', 'ID inválido al enviar taxi a base')
                     except Error as e:
                         print(f"Error actualizando taxi: {e}")
+                        audit_event('DBError', f'Error actualizando taxi: {e}')
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
@@ -293,17 +336,20 @@ def main():
                     for taxi in taxis:
                         if str(taxi[0]) == data:
                             print(f"Taxi {data} autenticado y operativo")
+                            audit_event('TaxiAuth', f'Taxi {data} autenticado', ip=addr[0])
                             try:
                                 cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', 
                                            ('Esperando estado...', taxi[0]))
                             except Error as e:
                                 print(f"Error actualizando estado del taxi: {e}")
+                                audit_event('DBError', f'Error actualizando estado del taxi: {e}')
                             conn.sendall(("Taxi autenticado").encode())
                 conn.close()
             except BlockingIOError:
                 pass
             except Exception as e:
                 print(f"Error en socket: {e}")
+                audit_event('SocketError', f'Error en socket: {e}')
 
         # Grid treatment
         grid = [[0 for _ in range(20)] for _ in range(20)]
@@ -339,6 +385,7 @@ def main():
                                 customers.append([messageSplit[2], '', [posX, posY]])
                                 grid[posX][posY] = messageSplit[2]
                                 print(f'Creado customer {messageSplit[2]} en posición {[posX, posY]}')
+                                audit_event('CustomerCreate', f'Creado customer {messageSplit[2]} en posición {[posX, posY]}')
 
                             if(messageSplit[0] == 'service'):
                                 for customer in customers:
@@ -358,10 +405,12 @@ def main():
                                                     producer.send('centralTaxi', (f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}').encode())
                                                     producer.send('centralCustomer', (f'aceptado {customer[0]} {customer[1]}').encode())
                                                 print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
+                                                audit_event('ServiceAssigned', f'Servicio {customer[0]} a {customer[1]} asignado al taxi {taxi[0]}')
                                                 asigned = True
                                                 break
                                         if not asigned and producer:
                                             producer.send('centralCustomer', (f'denegacion {customer[0]} {messageSplit[1]} de servicio').encode())
+                                            audit_event('ServiceDenied', f'Servicio denegado para {customer[0]} a {messageSplit[1]}')
 
                             # Resto del procesamiento de mensajes Kafka...
                             if(messageSplit[0] == 'mover'):
@@ -377,6 +426,7 @@ def main():
                                         for customer in customers:
                                             if customer[0] == messageSplit[2]:
                                                 customer[2] = [newPos[0], newPos[1]]
+                                        audit_event('TaxiMove', f'Taxi {taxi[0]} movido a {newPos}')
 
                                     elif str(taxi[0]) == messageSplit[1]:
                                         newPos = eval(message[message.find('['):message.find(']')+1])
@@ -398,12 +448,14 @@ def main():
                                     if customer[0] == messageSplit[1]:
                                         customer[1] = ''
                                         print(f'Servicio {messageSplit[1]} terminado')
+                                        audit_event('ServiceEnd', f'Servicio {messageSplit[1]} terminado por taxi {messageSplit[3]}')
                                         
                             if(messageSplit[0] == 'terminados'):
                                 for customer in customers:
                                     if customer[0] == messageSplit[1]:
                                         customer[1] = 'terminado'
                                         print(f'Customer {messageSplit[1]} ha terminado todos los servicios')
+                                        audit_event('CustomerEnd', f'Customer {messageSplit[1]} ha terminado todos los servicios')
                                         
                             if(messageSplit[0] == 'cambio'):
                                 for taxi in taxis:
@@ -415,8 +467,10 @@ def main():
                                         except Error as e:
                                             print(f"Error cambiando estado del taxi: {e}")
                                         print(f'Taxi {messageSplit[1]} ha cambiado su estado a {new_state}')
+                                        audit_event('TaxiStateChange', f'Taxi {messageSplit[1]} cambió estado a {new_state}')
             except Exception as e:
                 print(f"Error procesando mensajes Kafka: {e}")
+                audit_event('KafkaError', f'Error procesando mensajes Kafka: {e}')
 
         # Send updates via Kafka
         if producer:
@@ -540,23 +594,31 @@ def main():
         if con and con.is_connected():
             con.close()
             print("Conexión MySQL cerrada")
+            audit_event('DBClose', 'Conexión MySQL cerrada')
     except Error as e:
         print(f"Error cerrando la base de datos: {e}")
+        audit_event('DBError', f'Error cerrando la base de datos: {e}')
     try:
         if s:
             s.close()
+            audit_event('SocketClose', 'Socket cerrado')
     except Exception as e:
         print(f"Error cerrando el socket: {e}")
+        audit_event('SocketError', f'Error cerrando el socket: {e}')
     try:
         if producer:
             producer.close()
+            audit_event('KafkaProducerClose', 'Kafka Producer cerrado')
     except Exception as e:
         print(f"Error cerrando Kafka Producer: {e}")
+        audit_event('KafkaError', f'Error cerrando Kafka Producer: {e}')
     try:
         if consumer:
             consumer.close()
+            audit_event('KafkaConsumerClose', 'Kafka Consumer cerrado')
     except Exception as e:
         print(f"Error cerrando Kafka Consumer: {e}")
+        audit_event('KafkaError', f'Error cerrando Kafka Consumer: {e}')
 
 if __name__ == "__main__":
     main()
