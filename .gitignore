@@ -1,7 +1,8 @@
 venv
 *.db
+*.log
+
 frontend/node_modules
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 frontend/node_modules
@@ -47,5 +48,3 @@ frontend-audit/.env.production.local
 frontend-audit/npm-debug.log*
 frontend-audit/yarn-debug.log*
 frontend-audit/yarn-error.log*
-
-audit.log

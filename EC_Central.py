@@ -13,13 +13,17 @@ import time
 import logging
 from datetime import datetime
 import secrets
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import base64
+from typing import Any, List
 
 # Variables globales para compartir datos entre hilos
 taxis = []
 customers = []
 locations = []
-grid = []
+grid: List[List[Any]] = [[0 for _ in range(20)] for _ in range(20)]
 taxi_tokens = {}  # taxi_id: token
+taxi_keys = {}  # taxi_id: AES key (bytes)
 
 app = Flask(__name__)
 CORS(app)
@@ -102,18 +106,27 @@ def get_local_ip():
     except Exception:
         return "127.0.0.1"
 
-# Configuración del logger de auditoría
+# Configuración del logger global (para logs generales y de librerías externas)
 logging.basicConfig(
-    filename='audit.log',
+    filename='system.log',
     level=logging.INFO,
-    format='%(asctime)s | %(ip)s | %(action)s | %(description)s',
+    format='%(asctime)s | %(levelname)s | %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+
+# Logger específico para auditoría
+audit_logger = logging.getLogger("audit")
+audit_handler = logging.FileHandler("audit.log")
+audit_formatter = logging.Formatter('%(asctime)s | %(ip)s | %(action)s | %(description)s', datefmt='%Y-%m-%d %H:%M:%S')
+audit_handler.setFormatter(audit_formatter)
+audit_logger.addHandler(audit_handler)
+audit_logger.setLevel(logging.INFO)
+audit_logger.propagate = False  # Para que no duplique mensajes en el logger global
 
 def audit_event(action, description, ip=None):
     if ip is None:
         ip = get_local_ip()
-    logging.info('', extra={'ip': ip, 'action': action, 'description': description})
+    audit_logger.info('', extra={'ip': ip, 'action': action, 'description': description})
 
 def main():
     global taxis, customers, locations, grid, cityState
@@ -264,14 +277,15 @@ def main():
                 elif event.key == pygame.K_b:  # Press 'B' to send a taxi back to base
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
-                        if producer:
-                            producer.send('centralTaxi', (f'volver base').encode())
+                        if producer and str(taxi_id) in taxi_keys:
+                            b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi_id)], f'volver base')
+                            producer.send('centralTaxi', b64cipher.encode())
                             print(f"Taxi {taxi_id} está volviendo a la base.")
                             audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
                         cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
                                    ('', 'OK. Volver a base', taxi_id))
                         # Invalidar token
-                        taxi_tokens.pop(str(taxi[0]), None)
+                        taxi_tokens.pop(str(taxi_id), None)
                     except ValueError:
                         print("ID inválido")
                         audit_event('InputError', 'ID inválido al enviar taxi a base')
@@ -282,11 +296,8 @@ def main():
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
                         cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
-                        
-                    
                     except Error as e:
                         print(f"Error actualizando taxi: {e}")
-                        
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
@@ -309,8 +320,9 @@ def main():
         if changeState and cityState == "KO":
             for taxi in taxis:
                 if taxi[1] != "Sin autenticar":
-                    if producer:
-                        producer.send('centralTaxi', (f'volver base').encode())
+                    if producer and str(taxi[0]) in taxi_keys:
+                        b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'volver base')
+                        producer.send('centralTaxi', b64cipher.encode())
                     try:
                         cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', ('', 'OK. Volver a base', taxi[0]))
                         # Invalidar token
@@ -331,7 +343,10 @@ def main():
                         print(f"Error actualizando taxi: {e}")
             if producer:
                 producer.send('centralCustomer', (f'reanudar servicios').encode())
-                producer.send('centralTaxi', (f'reanudar servicios').encode())
+                for taxi in taxis:
+                    if str(taxi[0]) in taxi_keys:
+                        b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'reanudar servicios')
+                        producer.send('centralTaxi', b64cipher.encode())
 
         # Get taxis from db
         try:
@@ -360,6 +375,9 @@ def main():
                                 # Generar token
                                 token = secrets.token_hex(16)
                                 taxi_tokens[taxi_id] = token
+                                # Generar clave AES-256
+                                key = AESGCM.generate_key(bit_length=256)
+                                taxi_keys[taxi_id] = key
                                 print(f"Taxi {taxi_id} autenticado y operativo. Token: {token}")
                                 audit_event('TaxiAuth', f'Taxi {taxi_id} autenticado', ip=addr[0])
                                 try:
@@ -367,8 +385,9 @@ def main():
                                 except Error as e:
                                     print(f"Error actualizando estado del taxi: {e}")
                                     audit_event('DBError', f'Error actualizando estado del taxi: {e}')
-                                # Enviar token al taxi
-                                conn.sendall((f"Taxi autenticado|{token}").encode())
+                                # Enviar token y clave AES al taxi (ambos en base64)
+                                key_b64 = base64.b64encode(key).decode()
+                                conn.sendall((f"Taxi autenticado|{token}|{key_b64}").encode())
                     elif len(parts) >= 2:
                         taxi_id, token = parts[0], parts[1]
                         # Validar token
@@ -409,9 +428,30 @@ def main():
                 if msg:
                     for tp, records in msg.items():
                         for record in records:
-                            message = record.value.decode()
-                            messageSplit = record.value.decode().split(' ')
-                            
+                            if tp.topic == 'taxiCentral':
+                                # Mensaje cifrado, descifrar
+                                b64cipher = record.value.decode()
+                                taxi_id = None
+                                for t in taxis:
+                                    if t and str(t[0]) in b64cipher:
+                                        taxi_id = str(t[0])
+                                        break
+                                message = None
+                                if taxi_id and taxi_id in taxi_keys:
+                                    message = decrypt_message_aes_gcm(taxi_keys[taxi_id], b64cipher)
+                                else:
+                                    for k in taxi_keys.values():
+                                        message = decrypt_message_aes_gcm(k, b64cipher)
+                                        if message:
+                                            break
+                                if not message:
+                                    continue  # No se pudo descifrar
+                                messageSplit = message.split(' ')
+                            else:
+                                # Mensaje en texto plano
+                                message = record.value.decode()
+                                messageSplit = message.split(' ')
+                            print(f'messageSplit: {messageSplit}')
                             if(messageSplit[0] == 'create'):
                                 posX = random.choice([x for x in range(20) if x not in [int(subarray[1][0]) for subarray in locations]])
                                 posY = random.choice([y for y in range(20) if y not in [int(subarray[1][1]) for subarray in locations]])
@@ -434,8 +474,9 @@ def main():
                                                 except Error as e:
                                                     print(f"Error asignando servicio: {e}")
                                                     continue
-                                                if producer:
-                                                    producer.send('centralTaxi', (f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}').encode())
+                                                if producer and str(taxi[0]) in taxi_keys:
+                                                    b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}')
+                                                    producer.send('centralTaxi', b64cipher.encode())
                                                     producer.send('centralCustomer', (f'aceptado {customer[0]} {customer[1]}').encode())
                                                 print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
                                                 audit_event('ServiceAssigned', f'Servicio {customer[0]} a {customer[1]} asignado al taxi {taxi[0]}')
@@ -445,7 +486,6 @@ def main():
                                             producer.send('centralCustomer', (f'denegacion {customer[0]} {messageSplit[1]} de servicio').encode())
                                             audit_event('ServiceDenied', f'Servicio denegado para {customer[0]} a {messageSplit[1]}')
 
-                            # Resto del procesamiento de mensajes Kafka...
                             if(messageSplit[0] == 'mover'):
                                 for taxi in taxis:
                                     if messageSplit[1] == 'juntos' and str(taxi[0]) == messageSplit[3]:
@@ -508,10 +548,20 @@ def main():
         # Send updates via Kafka
         if producer:
             try:
-                producer.send('centralTaxi', (f'grid {str(grid)}').encode())
-                producer.send('centralTaxi', (f'taxis {str(taxis)}').encode())
-                producer.send('centralTaxi', (f'customers {str(customers)}').encode())
-                producer.send('centralTaxi', (f'locations {str(locations)}').encode())
+                # Enviar mensajes cifrados a taxis (solo los que sean relevantes para taxis)
+                for taxi in taxis:
+                    taxi_id = str(taxi[0])
+                    if taxi_id in taxi_keys:
+                        # Ejemplo: enviar grid, taxis, customers, locations cifrados
+                        for topic, msg in [
+                            ('centralTaxi', f'grid {str(grid)}'),
+                            ('centralTaxi', f'taxis {str(taxis)}'),
+                            ('centralTaxi', f'customers {str(customers)}'),
+                            ('centralTaxi', f'locations {str(locations)}')
+                        ]:
+                            b64cipher = encrypt_message_aes_gcm(taxi_keys[taxi_id], msg)
+                            producer.send(topic, b64cipher.encode())
+                # Mensajes a centralCustomer pueden ir sin cifrar
             except Exception as e:
                 print(f"Error enviando mensajes Kafka: {e}")
         
@@ -652,6 +702,26 @@ def main():
     except Exception as e:
         print(f"Error cerrando Kafka Consumer: {e}")
         audit_event('KafkaError', f'Error cerrando Kafka Consumer: {e}')
+
+# Funciones utilitarias de cifrado/descifrado
+
+def encrypt_message_aes_gcm(key, plaintext):
+    aesgcm = AESGCM(key)
+    nonce = secrets.token_bytes(12)
+    ct = aesgcm.encrypt(nonce, plaintext.encode(), None)
+    # Retornar base64(nonce|ct)
+    return base64.b64encode(nonce + ct).decode()
+
+def decrypt_message_aes_gcm(key, b64cipher):
+    try:
+        data = base64.b64decode(b64cipher)
+        nonce, ct = data[:12], data[12:]
+        aesgcm = AESGCM(key)
+        pt = aesgcm.decrypt(nonce, ct, None)
+        return pt.decode()
+    except Exception as e:
+        print(f"Error descifrando mensaje: {e}")
+        return None
 
 if __name__ == "__main__":
     main()
