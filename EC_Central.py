@@ -203,7 +203,7 @@ def main():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('127.0.0.1', int(listenPort)))
         s.listen(1)
-        s.setblocking(0)
+        s.setblocking(False)
         print(f"Socket servidor iniciado en puerto {listenPort}")
         audit_event('SocketStart', f'Socket servidor iniciado en puerto {listenPort}')
     except Exception as e:
@@ -262,15 +262,27 @@ def main():
                 elif event.key == pygame.K_b:  # Press 'B' to send a taxi back to base
                     try:
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
-                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
-                        print(f"Taxi {taxi_id} está volviendo a la base.")
-                        audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
+                        if producer:
+                            producer.send('centralTaxi', (f'volver base').encode())
+                            print(f"Taxi {taxi_id} está volviendo a la base.")
+                            audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
+                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
+                                   ('', 'OK. Volver a base', taxi_id))
                     except ValueError:
                         print("ID inválido")
                         audit_event('InputError', 'ID inválido al enviar taxi a base')
                     except Error as e:
+                        print(f"Error actualizando taxi en base: {e}")
+                        audit_event('DBError', f'Error actualizando taxi en base: {e}')
+                    
+                    try:
+                        taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
+                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
+                        
+                    
+                    except Error as e:
                         print(f"Error actualizando taxi: {e}")
-                        audit_event('DBError', f'Error actualizando taxi: {e}')
+                        
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
@@ -328,7 +340,7 @@ def main():
         if s:
             try:
                 conn, addr = s.accept()
-                conn.setblocking(0)
+                conn.setblocking(False)
                 while True:
                     data = conn.recv(1024).decode()
                     if not data:
