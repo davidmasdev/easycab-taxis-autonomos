@@ -12,12 +12,14 @@ import threading
 import time
 import logging
 from datetime import datetime
+import secrets
 
 # Variables globales para compartir datos entre hilos
 taxis = []
 customers = []
 locations = []
 grid = []
+taxi_tokens = {}  # taxi_id: token
 
 app = Flask(__name__)
 CORS(app)
@@ -268,6 +270,8 @@ def main():
                             audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
                         cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
                                    ('', 'OK. Volver a base', taxi_id))
+                        # Invalidar token
+                        taxi_tokens.pop(str(taxi[0]), None)
                     except ValueError:
                         print("ID inválido")
                         audit_event('InputError', 'ID inválido al enviar taxi a base')
@@ -308,8 +312,9 @@ def main():
                     if producer:
                         producer.send('centralTaxi', (f'volver base').encode())
                     try:
-                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
-                                   ('', 'OK. Volver a base', taxi[0]))
+                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', ('', 'OK. Volver a base', taxi[0]))
+                        # Invalidar token
+                        taxi_tokens.pop(str(taxi[0]), None)
                     except Error as e:
                         print(f"Error actualizando taxi en base: {e}")
             if producer:
@@ -345,17 +350,33 @@ def main():
                     data = conn.recv(1024).decode()
                     if not data:
                         break
-                    for taxi in taxis:
-                        if str(taxi[0]) == data:
-                            print(f"Taxi {data} autenticado y operativo")
-                            audit_event('TaxiAuth', f'Taxi {data} autenticado', ip=addr[0])
-                            try:
-                                cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', 
-                                           ('Esperando estado...', taxi[0]))
-                            except Error as e:
-                                print(f"Error actualizando estado del taxi: {e}")
-                                audit_event('DBError', f'Error actualizando estado del taxi: {e}')
-                            conn.sendall(("Taxi autenticado").encode())
+                    # Espera formato: taxi_id|token|mensaje o solo taxi_id para autenticación inicial
+                    parts = data.strip().split('|')
+                    if len(parts) == 1:
+                        # Autenticación inicial
+                        taxi_id = parts[0]
+                        for taxi in taxis:
+                            if str(taxi[0]) == taxi_id:
+                                # Generar token
+                                token = secrets.token_hex(16)
+                                taxi_tokens[taxi_id] = token
+                                print(f"Taxi {taxi_id} autenticado y operativo. Token: {token}")
+                                audit_event('TaxiAuth', f'Taxi {taxi_id} autenticado', ip=addr[0])
+                                try:
+                                    cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('Esperando estado...', taxi_id))
+                                except Error as e:
+                                    print(f"Error actualizando estado del taxi: {e}")
+                                    audit_event('DBError', f'Error actualizando estado del taxi: {e}')
+                                # Enviar token al taxi
+                                conn.sendall((f"Taxi autenticado|{token}").encode())
+                    elif len(parts) >= 2:
+                        taxi_id, token = parts[0], parts[1]
+                        # Validar token
+                        if taxi_tokens.get(taxi_id) != token:
+                            conn.sendall("Token inválido".encode())
+                            continue
+                        # Procesar mensaje normal (puedes añadir aquí lógica según el mensaje)
+                        # Ejemplo: conn.sendall("Mensaje recibido".encode())
                 conn.close()
             except BlockingIOError:
                 pass

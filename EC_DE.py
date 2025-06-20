@@ -3,6 +3,7 @@ import socket
 from kafka import KafkaConsumer, KafkaProducer
 import pygame
 import requests
+import secrets
 
 idTaxi = sys.argv[1] if len(sys.argv) > 1 else "1"
 ipPortCentral = sys.argv[2] if len(sys.argv) > 2 else "localhost:3030"
@@ -39,7 +40,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ipCentral, portCentral))
     s.sendall(f"{idTaxi}".encode())
     data = s.recv(1024)
-    print(f"Received {data.decode()} from Central")
+    response = data.decode()
+    if response.startswith("Taxi autenticado|"):
+        token = response.split('|')[1]
+        print(f"Received token from Central: {token}")
+    else:
+        print(f"Received unexpected response from Central: {response}")
+        sys.exit(1)
 
 # Socket server creation (bind to a free port in range 6000-7000)
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,7 +63,7 @@ else:
     sys.exit(1)
 
 soc.listen(1)
-soc.setblocking(0)
+soc.setblocking(False)
 conn = None
 # conn, addr = soc.accept()
 # conn.setblocking(0)
@@ -320,7 +327,8 @@ while running:
     clock.tick(1)
 
 
-conn.close()    
+if conn is not None:
+    conn.close()
 consumer.close()
 producer.close()  
 pygame.quit()

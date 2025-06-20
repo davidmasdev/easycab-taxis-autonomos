@@ -47,3 +47,5 @@ frontend-audit/.env.production.local
 frontend-audit/npm-debug.log*
 frontend-audit/yarn-debug.log*
 frontend-audit/yarn-error.log*
+
+audit.log
