@@ -195,7 +195,7 @@ def main():
 
     # Kafka Producer
     try:
-        producer = KafkaProducer(bootstrap_servers=f'{dataBroker}')
+        producer = KafkaProducer(bootstrap_servers=dataBroker)
         producer.send('taxiCentral', (f'').encode())
         print("Kafka Producer conectado")
     except Exception as e:
@@ -204,7 +204,7 @@ def main():
 
     # Kafka Consumer
     try:
-        consumer = KafkaConsumer(bootstrap_servers=f'{dataBroker}')
+        consumer = KafkaConsumer(bootstrap_servers=dataBroker)
         consumer.subscribe(['customerCentral', 'taxiCentral'])
         print("Kafka Consumer conectado")
     except Exception as e:
@@ -306,7 +306,7 @@ def main():
         changeState = False
         if time.time() - lastApiCall >= 10:
             try:
-                response = requests.get("http://localhost:5050/estado")
+                response = requests.get("http://ec_ctc:5050/estado")
                 if response.ok:
                     data = response.json()
                     if cityState != data['estado']:

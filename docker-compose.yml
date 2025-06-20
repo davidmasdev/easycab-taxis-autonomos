@@ -1,0 +1,106 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - sdnet
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - sdnet
+
+  ec_central:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_central
+    container_name: ec_central
+    depends_on:
+      - kafka
+    networks:
+      - sdnet
+
+  ec_ctc:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_ctc
+    container_name: ec_ctc
+    depends_on:
+      - kafka
+    ports:
+      - "5050:5050"
+    networks:
+      - sdnet
+
+  ec_customer:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_customer
+    container_name: ec_customer
+    depends_on:
+      - kafka
+    networks:
+      - sdnet
+
+  ec_registry:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_registry
+    container_name: ec_registry
+    depends_on:
+      - kafka
+    networks:
+      - sdnet
+
+  ec_s:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_s
+    container_name: ec_s
+    depends_on:
+      - kafka
+    networks:
+      - sdnet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: frontend
+    ports:
+      - '80:80'
+    networks:
+      - sdnet
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: easycab
+      MYSQL_USER: easycab_user
+      MYSQL_PASSWORD: Easycab23!
+    ports:
+      - "3306:3306"
+    networks:
+      - sdnet
+
+networks:
+  sdnet:
+    driver: bridge 

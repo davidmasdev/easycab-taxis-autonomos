@@ -213,3 +213,8 @@
 2025-06-20 13:49:10 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 8]
 2025-06-20 13:49:11 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
 2025-06-20 13:49:12 | 172.19.54.229 | CustomerEnd | Customer a ha terminado todos los servicios
+2025-06-20 17:01:05 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:8080
+2025-06-20 17:01:41 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:8080
+2025-06-20 17:02:30 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-20 18:38:47 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:8080
+2025-06-20 18:38:48 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3000
