@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:7070";
+const API_URL = process.env.REACT_APP_AUDIT_API_URL || "http://localhost:7071";
 
 function AuditLog() {
   const [events, setEvents] = useState([]);

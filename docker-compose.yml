@@ -72,6 +72,8 @@ services:
       - sdnet
     environment:
       - PYTHONUNBUFFERED=1
+    volumes:
+      - ./audit.log:/app/audit.log
 
   frontend_audit:
     build:
@@ -85,7 +87,7 @@ services:
     networks:
       - sdnet
     environment:
-      - REACT_APP_API_URL=http://${FRONTEND_AUDIT_API_HOST}:7071
+      - REACT_APP_AUDIT_API_URL=http://${FRONTEND_AUDIT_API_HOST}:7071
 
 networks:
   sdnet:

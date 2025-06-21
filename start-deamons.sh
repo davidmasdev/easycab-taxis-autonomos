@@ -11,4 +11,10 @@ echo "Starting Frontend with FRONTEND_API_HOST=$HOST_IP"
 export KAFKA_EXTERNAL_HOST=$HOST_IP
 export FRONTEND_API_HOST=$HOST_IP
 export FRONTEND_AUDIT_API_HOST=$HOST_IP
+
+# Crear audit.log si no existe
+if [ ! -f audit.log ]; then
+  touch audit.log
+fi
+
 docker-compose up -d
