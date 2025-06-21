@@ -2,12 +2,12 @@ import sys
 import pygame
 import socket
 
-ipPortEcde = sys.argv[1] if len(sys.argv) > 1 else "localhost:4000"
+ipPortEcde = sys.argv[1] if len(sys.argv) > 1 else "localhost:6000"
 
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
-pygame.display.set_caption("EasyCab | EC_S")
+pygame.display.set_caption(f"EasyCab | EC_S Taxi {ipPortEcde.split(':')[-1]}")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('arial', 24)
 running = True
@@ -27,6 +27,14 @@ except ConnectionRefusedError:
 # Inicializar el mensaje como vacío
 message = b''
 
+# Obtener idTaxi de sys.argv si está presente (por compatibilidad)
+idTaxi = None
+if len(sys.argv) > 2:
+    idTaxi = sys.argv[2]
+else:
+    # Extraer el puerto para mostrarlo como id
+    idTaxi = ipPortEcde.split(":")[-1]
+
 # Game loop
 while running:
     # poll for events
@@ -44,17 +52,17 @@ while running:
     screen.fill("grey")
     
     # Render the current state on the screen
-    state_text = font.render(f"Estado actual: {message.decode().strip()}", True, "white")
+    state_text = font.render(f"Taxi {idTaxi} | Estado actual: {message.decode().strip()}", True, "white")
     screen.blit(state_text, (50, 50))  # Display the text at position (50, 50)
 
     # Enviar el mensaje solo si no está vacío
     if message:
         try:
             s.sendall(message)
-            print(f"Enviando: {message.decode().strip()}")
+            print(f"[DEBUG][Taxi {idTaxi}] Enviando: {message.decode().strip()}")
             # message = b''  # Limpiar el mensaje después de enviarlo
         except (BrokenPipeError, ConnectionResetError):
-            print("Conexión perdida")
+            print(f"[DEBUG][Taxi {idTaxi}] Conexión perdida")
             running = False  # Exit the loop if the connection is lost
 
     pygame.display.flip()

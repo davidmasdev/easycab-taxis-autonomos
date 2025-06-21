@@ -83,7 +83,7 @@ producer = KafkaProducer(bootstrap_servers=f'{ipPortBroker}')
 
 # Kafka Consumer
 consumer = KafkaConsumer(bootstrap_servers=f'{ipPortBroker}')
-consumer.subscribe(['centralTaxi'])
+consumer.subscribe([f'centralTaxi-{idTaxi}'])
 
 # This sets the WIDTH and HEIGHT of each grid location
 WIDTH = 20
@@ -135,6 +135,10 @@ def decrypt_message_aes_gcm(key, b64cipher):
 
 estado = ""
 
+# Añadir prints de debug en recepción de EC_S
+def print_debug(msg):
+    print(f"[DEBUG][Taxi {idTaxi}] {msg}")
+
 while running:
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -149,7 +153,7 @@ while running:
         try:
             conn, addr = soc.accept()
             conn.setblocking(False)
-            print("Cliente conectado")
+            print_debug("Cliente EC_S conectado")
         except BlockingIOError:
             pass  # No hay conexión entrante todavía
     else:
@@ -157,24 +161,21 @@ while running:
             data = conn.recv(1024).decode()
             if not data:
                 break
-            # print(f"Received {data} from EC_S")
-            print (f"Recibido {data.strip()} de EC_S")
             if data.strip() != estado_ec_s[:2]:
                 if estado.startswith('OK') or estado.startswith('KO'):
                     estado_ec_s = data.strip() + estado[2:]
-                    print(f"Estado EC_S: {estado_ec_s}")
                 else:
                     estado_ec_s = data.strip()
                 # Cifrar mensaje antes de enviarlo a taxiCentral
                 encrypted_msg = encrypt_message_aes_gcm(key, f'cambio {idTaxi} {customer} {estado_ec_s}')
-                producer.send('taxiCentral', encrypted_msg.encode())
-                print(f"Enviando (cifrado): {estado_ec_s} a taxiCentral")
-            # conn.close()
+                # Enviar con formato: taxi_id|mensaje_cifrado
+                producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
+                print_debug(f"Enviado a taxiCentral: cambio {idTaxi} {customer} {estado_ec_s}")
         except BlockingIOError:
             pass
 
     # Render the estado_ec_s on the screen
-    estado_text = font.render(f"Estado EC_S: {estado_ec_s}", True, "white")
+    estado_text = font.render(f"Taxi {idTaxi} | Estado EC_S: {estado_ec_s}", True, "white")
 
     # Calcula la posición para mostrar el texto en el lado derecho
     estado_x = screen.get_width() - estado_text.get_width() - 50  # 50 píxeles de margen desde el borde derecho
@@ -230,28 +231,28 @@ while running:
     if returnBase:
         if position[0] < basePosition[0] and position[1] < basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < basePosition[0] and position[1] > basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > basePosition[0] and position[1] < basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > basePosition[0] and position[1] > basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < basePosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > basePosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] < basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0], position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] > basePosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0], position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
 
 
     # print(f"position {position} customerPosition {customerPosition} destinationPosition {destinationPosition}")
@@ -259,59 +260,59 @@ while running:
         # print(f"Taxi {idTaxi} recogiendo a {customer}")
         if position[0] < customerPosition[0] and position[1] < customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < customerPosition[0] and position[1] > customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > customerPosition[0] and position[1] < customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > customerPosition[0] and position[1] > customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < customerPosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]+1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > customerPosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0]-1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] < customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0], position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] > customerPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover {idTaxi} {[position[0], position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
 
     if not returnBase and position == customerPosition and position != destinationPosition and estado.startswith('OK'):
         # print(f"Taxi {idTaxi} llevando a {customer} hacia {destination}")
         if position[0] < destinationPosition[0] and position[1] < destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < destinationPosition[0] and position[1] > destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > destinationPosition[0] and position[1] < destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > destinationPosition[0] and position[1] > destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] < destinationPosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]+1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[0] > destinationPosition[0]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0]-1, position[1]]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] < destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0], position[1]+1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         elif position[1] > destinationPosition[1]:
             encrypted_msg = encrypt_message_aes_gcm(key, f'mover juntos {customer} {idTaxi} {[position[0], position[1]-1]}')
-            producer.send('taxiCentral', encrypted_msg.encode())
+            producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
 
     if position == destinationPosition and position != [] and position == customerPosition and estado.startswith('OK'):
         encrypted_msg = encrypt_message_aes_gcm(key, f'terminado {customer} {destination} {idTaxi}')
-        producer.send('taxiCentral', encrypted_msg.encode())
+        producer.send('taxiCentral', f'{idTaxi}|{encrypted_msg}'.encode())
         nextService = False
         customer = ''
         destination = ''

@@ -196,7 +196,7 @@ def main():
     # Kafka Producer
     try:
         producer = KafkaProducer(bootstrap_servers=dataBroker)
-        producer.send('taxiCentral', (f'').encode())
+        # producer.send('taxiCentral', (f'').encode())
         print("Kafka Producer conectado")
     except Exception as e:
         print(f"Error conectando Kafka Producer: {e}")
@@ -279,7 +279,8 @@ def main():
                         taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
                         if producer and str(taxi_id) in taxi_keys:
                             b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi_id)], f'volver base')
-                            producer.send('centralTaxi', b64cipher.encode())
+                            topic = f'centralTaxi-{taxi_id}'
+                            producer.send(topic, b64cipher.encode())
                             print(f"Taxi {taxi_id} está volviendo a la base.")
                             audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
                         cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
@@ -322,7 +323,8 @@ def main():
                 if taxi[1] != "Sin autenticar":
                     if producer and str(taxi[0]) in taxi_keys:
                         b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'volver base')
-                        producer.send('centralTaxi', b64cipher.encode())
+                        topic = f'centralTaxi-{taxi[0]}'
+                        producer.send(topic, b64cipher.encode())
                     try:
                         cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', ('', 'OK. Volver a base', taxi[0]))
                         # Invalidar token
@@ -346,12 +348,15 @@ def main():
                 for taxi in taxis:
                     if str(taxi[0]) in taxi_keys:
                         b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'reanudar servicios')
-                        producer.send('centralTaxi', b64cipher.encode())
+                        topic = f'centralTaxi-{taxi[0]}'
+                        producer.send(topic, b64cipher.encode())
 
         # Get taxis from db
         try:
             cur.execute("SELECT * FROM taxis")
-            taxis = cur.fetchall()
+            taxis_tuples = cur.fetchall()
+            # Convertir tuplas a listas para poder modificarlas
+            taxis = [list(taxi) for taxi in taxis_tuples]
         except Error as e:
             print(f"Error accediendo a la base de datos: {e}")
             taxis = []
@@ -429,21 +434,32 @@ def main():
                     for tp, records in msg.items():
                         for record in records:
                             if tp.topic == 'taxiCentral':
-                                # Mensaje cifrado, descifrar
-                                b64cipher = record.value.decode()
-                                taxi_id = None
-                                for t in taxis:
-                                    if t and str(t[0]) in b64cipher:
-                                        taxi_id = str(t[0])
-                                        break
-                                message = None
-                                if taxi_id and taxi_id in taxi_keys:
-                                    message = decrypt_message_aes_gcm(taxi_keys[taxi_id], b64cipher)
+                                # Mensaje cifrado con formato: taxi_id|mensaje_cifrado
+                                raw_message = record.value.decode()
+                                if '|' in raw_message:
+                                    # Nuevo formato: taxi_id|mensaje_cifrado
+                                    parts = raw_message.split('|', 1)
+                                    taxi_id = parts[0]
+                                    b64cipher = parts[1]
+                                    message = None
+                                    if taxi_id in taxi_keys:
+                                        message = decrypt_message_aes_gcm(taxi_keys[taxi_id], b64cipher)
                                 else:
-                                    for k in taxi_keys.values():
-                                        message = decrypt_message_aes_gcm(k, b64cipher)
-                                        if message:
+                                    # Formato antiguo: solo mensaje cifrado (para compatibilidad)
+                                    b64cipher = raw_message
+                                    taxi_id = None
+                                    for t in taxis:
+                                        if t and str(t[0]) in b64cipher:
+                                            taxi_id = str(t[0])
                                             break
+                                    message = None
+                                    if taxi_id and taxi_id in taxi_keys:
+                                        message = decrypt_message_aes_gcm(taxi_keys[taxi_id], b64cipher)
+                                    else:
+                                        for k in taxi_keys.values():
+                                            message = decrypt_message_aes_gcm(k, b64cipher)
+                                            if message:
+                                                break
                                 if not message:
                                     continue  # No se pudo descifrar
                                 messageSplit = message.split(' ')
@@ -464,11 +480,16 @@ def main():
                                 for customer in customers:
                                     if customer[0] == messageSplit[3]:
                                         asigned = False
-                                        customer[1] = messageSplit[1]
                                         for taxi in taxis:
                                             print(taxi)
+                                            if asigned: 
+                                                break
                                             if(taxi[4] == '' and taxi[1] == 'OK'):
                                                 try:
+                                                    # Actualizar inmediatamente la información del taxi en memoria
+                                                    taxi[4] = customer[1]
+                                                    taxi[1] = f'OK. Servicio {customer[0]}'
+                                                    customer[1] = messageSplit[1]
                                                     cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
                                                                (customer[1], f'OK. Servicio {customer[0]}', taxi[0]))
                                                 except Error as e:
@@ -476,7 +497,8 @@ def main():
                                                     continue
                                                 if producer and str(taxi[0]) in taxi_keys:
                                                     b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'asignar {taxi[0]} cliente {customer[0]} destino {customer[1]}')
-                                                    producer.send('centralTaxi', b64cipher.encode())
+                                                    topic = f'centralTaxi-{taxi[0]}'
+                                                    producer.send(topic, b64cipher.encode())
                                                     producer.send('centralCustomer', (f'aceptado {customer[0]} {customer[1]}').encode())
                                                 print(f'Customer {customer[0]} con servicio a {customer[1]} asignado al taxi {taxi[0]}')
                                                 audit_event('ServiceAssigned', f'Servicio {customer[0]} a {customer[1]} asignado al taxi {taxi[0]}')
@@ -531,16 +553,14 @@ def main():
                                         audit_event('CustomerEnd', f'Customer {messageSplit[1]} ha terminado todos los servicios')
                                         
                             if(messageSplit[0] == 'cambio'):
-                                for taxi in taxis:
-                                    if str(taxi[0]) == messageSplit[1]:
-                                        new_state = ' '.join(messageSplit[3:])
-                                        try:
-                                            cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', 
-                                                       (new_state, taxi[0]))
-                                        except Error as e:
-                                            print(f"Error cambiando estado del taxi: {e}")
-                                        print(f'Taxi {messageSplit[1]} ha cambiado su estado a {new_state}')
-                                        audit_event('TaxiStateChange', f'Taxi {messageSplit[1]} cambió estado a {new_state}')
+                                taxi_id = messageSplit[1]
+                                new_state = ' '.join(messageSplit[3:])
+                                try:
+                                    cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', (new_state, taxi_id))
+                                except Error as e:
+                                    print(f"Error cambiando estado del taxi: {e}")
+                                print(f'Taxi {taxi_id} ha cambiado su estado a {new_state}')
+                                audit_event('TaxiStateChange', f'Taxi {taxi_id} cambió estado a {new_state}')
             except Exception as e:
                 print(f"Error procesando mensajes Kafka: {e}")
                 audit_event('KafkaError', f'Error procesando mensajes Kafka: {e}')
@@ -560,6 +580,7 @@ def main():
                             ('centralTaxi', f'locations {str(locations)}')
                         ]:
                             b64cipher = encrypt_message_aes_gcm(taxi_keys[taxi_id], msg)
+                            topic = f'centralTaxi-{taxi_id}'
                             producer.send(topic, b64cipher.encode())
                 # Mensajes a centralCustomer pueden ir sin cifrar
             except Exception as e:
