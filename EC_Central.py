@@ -41,7 +41,7 @@ def central():
 
 def run_flask_app():
     """Función para ejecutar Flask en un hilo separado"""
-    app.run(host='0.0.0.0', port=8080, debug=False, use_reloader=False)
+    app.run(host='0.0.0.0', port=7070, debug=False, use_reloader=False)
 
 def create_mysql_connection(host='localhost', database='easycab', user='easycab_user', password='Easycab23!'):
     """Crear conexión a MySQL"""
@@ -144,8 +144,8 @@ def main():
     # Iniciar Flask en un hilo separado
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
-    print("Flask API iniciada en http://localhost:8080")
-    audit_event('FlaskStart', 'API Flask iniciada en http://localhost:8080')
+    print("Flask API iniciada en http://localhost:7070")
+    audit_event('FlaskStart', 'API Flask iniciada en http://localhost:7070')
 
     # Locations treatment
     try:
@@ -306,7 +306,7 @@ def main():
         changeState = False
         if time.time() - lastApiCall >= 10:
             try:
-                response = requests.get("http://ec_ctc:5050/estado")
+                response = requests.get("http://localhost:5050/estado")
                 if response.ok:
                     data = response.json()
                     if cityState != data['estado']:

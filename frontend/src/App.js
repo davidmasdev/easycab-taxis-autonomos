@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:7070";
+
 function App() {
   const [gridData, setGridData] = useState(null);
   const [taxisData, setTaxisData] = useState([]);
@@ -51,7 +53,7 @@ function App() {
     updateStatus(false, "Actualizando...");
 
     try {
-      const response = await fetch("http://localhost:8080/central");
+      const response = await fetch(`${API_URL}/central`);
       if (!response.ok) {
         throw new Error("Error en la respuesta del servidor");
       }

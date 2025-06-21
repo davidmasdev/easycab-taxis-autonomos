@@ -21,72 +21,14 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://${KAFKA_EXTERNAL_HOST:-localhost}:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - sdnet
 
-  ec_central:
-    build:
-      context: .
-      dockerfile: Dockerfile.ec_central
-    container_name: ec_central
-    depends_on:
-      - kafka
-    networks:
-      - sdnet
-
-  ec_ctc:
-    build:
-      context: .
-      dockerfile: Dockerfile.ec_ctc
-    container_name: ec_ctc
-    depends_on:
-      - kafka
-    ports:
-      - "5050:5050"
-    networks:
-      - sdnet
-
-  ec_customer:
-    build:
-      context: .
-      dockerfile: Dockerfile.ec_customer
-    container_name: ec_customer
-    depends_on:
-      - kafka
-    networks:
-      - sdnet
-
-  ec_registry:
-    build:
-      context: .
-      dockerfile: Dockerfile.ec_registry
-    container_name: ec_registry
-    depends_on:
-      - kafka
-    networks:
-      - sdnet
-
-  ec_s:
-    build:
-      context: .
-      dockerfile: Dockerfile.ec_s
-    container_name: ec_s
-    depends_on:
-      - kafka
-    networks:
-      - sdnet
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: frontend
-    ports:
-      - '80:80'
-    networks:
-      - sdnet
 
   mysql:
     image: mysql:8.0
@@ -100,6 +42,21 @@ services:
       - "3306:3306"
     networks:
       - sdnet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - mysql
+    networks:
+      - sdnet
+    environment:
+      - REACT_APP_API_URL=http://${FRONTEND_API_HOST}:7070
 
 networks:
   sdnet:

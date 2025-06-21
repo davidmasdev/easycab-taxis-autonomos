@@ -133,6 +133,8 @@ def decrypt_message_aes_gcm(key, b64cipher):
         print(f"Error descifrando mensaje: {e}")
         return None
 
+estado = ""
+
 while running:
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
