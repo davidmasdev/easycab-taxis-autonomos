@@ -1,0 +1,11 @@
+FROM node:18-alpine as build
+WORKDIR /app
+COPY frontend-audit/package*.json ./
+RUN npm install
+COPY frontend-audit/ ./
+RUN npm run build
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+COPY frontend-audit/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 8081
+CMD ["nginx", "-g", "daemon off;"] 

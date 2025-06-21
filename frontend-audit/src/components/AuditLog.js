@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const API_URL = 'http://localhost:8081/audit';
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:7070";
 
 function AuditLog() {
   const [events, setEvents] = useState([]);
@@ -9,7 +9,7 @@ function AuditLog() {
   useEffect(() => {
     let isMounted = true;
     const fetchAudit = () => {
-      fetch(API_URL)
+      fetch(`${API_URL}/audit`)
         .then(res => {
           if (!res.ok) throw new Error('No se pudo obtener el log de auditoría');
           return res.json();

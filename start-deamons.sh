@@ -10,4 +10,5 @@ echo "Starting Frontend with FRONTEND_API_HOST=$HOST_IP"
 # Exportar la variable de entorno y ejecutar docker-compose
 export KAFKA_EXTERNAL_HOST=$HOST_IP
 export FRONTEND_API_HOST=$HOST_IP
+export FRONTEND_AUDIT_API_HOST=$HOST_IP
 docker-compose up -d

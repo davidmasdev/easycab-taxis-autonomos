@@ -58,6 +58,35 @@ services:
     environment:
       - REACT_APP_API_URL=http://${FRONTEND_API_HOST}:7070
 
+  ec_auditapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.ec_auditapi
+    container_name: ec_auditapi
+    depends_on:
+      - kafka
+      - mysql
+    ports:
+      - "7071:7071"
+    networks:
+      - sdnet
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend_audit:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend_audit
+    container_name: frontend_audit
+    ports:
+      - "8081:8081"
+    depends_on:
+      - ec_auditapi
+    networks:
+      - sdnet
+    environment:
+      - REACT_APP_API_URL=http://${FRONTEND_AUDIT_API_HOST}:7071
+
 networks:
   sdnet:
     driver: bridge 
