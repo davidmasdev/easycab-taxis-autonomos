@@ -435,3 +435,113 @@
 2025-06-21 19:12:11 | 172.19.54.229 | SocketClose | Socket cerrado
 2025-06-21 19:12:11 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
 2025-06-21 19:12:11 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-21 19:22:10 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:22:10 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-21 19:22:45 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [8, 3]
+2025-06-21 19:22:45 | 172.19.54.229 | CustomerCreate | Creado customer c en posición [15, 4]
+2025-06-21 19:22:45 | 172.19.54.229 | CustomerCreate | Creado customer b en posición [1, 12]
+2025-06-21 19:22:50 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:22:50 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:22:50 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:22:58 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:22:58 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:22:58 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:06 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:06 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:06 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:16 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:16 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:16 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:24 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:24 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:24 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:32 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:32 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:32 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:37 | 127.0.0.1 | TaxiAuth | Taxi 3 autenticado
+2025-06-21 19:23:37 | 127.0.0.1 | TaxiAuth | Taxi 2 autenticado
+2025-06-21 19:23:38 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-21 19:23:40 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:40 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:40 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:51 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-21 19:23:51 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:51 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:23:57 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-21 19:23:59 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-21 19:23:59 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:23:59 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:24:07 | 172.19.54.229 | ServiceDenied | Servicio denegado para c a A
+2025-06-21 19:24:07 | 172.19.54.229 | ServiceDenied | Servicio denegado para b a A
+2025-06-21 19:24:10 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 4]
+2025-06-21 19:24:11 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 5]
+2025-06-21 19:24:12 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 5]
+2025-06-21 19:24:12 | 172.19.54.229 | TaxiStateChange | Taxi 2 cambió estado a OK
+2025-06-21 19:24:13 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 5]
+2025-06-21 19:24:14 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [3, 5]
+2025-06-21 19:24:15 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-21 19:24:18 | 172.19.54.229 | ServiceAssigned | Servicio c a A asignado al taxi 1
+2025-06-21 19:24:18 | 172.19.54.229 | ServiceAssigned | Servicio b a A asignado al taxi 2
+2025-06-21 19:24:22 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:24:30 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:24:38 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 5]
+2025-06-21 19:24:38 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:24:39 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 5]
+2025-06-21 19:24:40 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 5]
+2025-06-21 19:24:41 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 5]
+2025-06-21 19:24:42 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 5]
+2025-06-21 19:24:46 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:24:47 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 5]
+2025-06-21 19:24:48 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 5]
+2025-06-21 19:24:51 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [2, 11]
+2025-06-21 19:24:52 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-21 19:24:53 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 5]
+2025-06-21 19:24:53 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 10]
+2025-06-21 19:24:54 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 5]
+2025-06-21 19:24:55 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 5]
+2025-06-21 19:24:55 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 9]
+2025-06-21 19:24:57 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:24:57 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [3, 5]
+2025-06-21 19:24:59 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 8]
+2025-06-21 19:25:04 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 7]
+2025-06-21 19:25:05 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:25:06 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 6]
+2025-06-21 19:25:13 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:25:17 | 172.19.54.229 | TaxiMove | Taxi 2 movido a [3, 5]
+2025-06-21 19:25:23 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:25:31 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a B
+2025-06-21 19:25:36 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-21 19:25:36 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-21 19:25:36 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-21 19:25:36 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-21 19:25:36 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-21 19:28:57 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:28:58 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-21 19:29:13 | 127.0.0.1 | TaxiAuth | Taxi 3 autenticado
+2025-06-21 19:29:13 | 127.0.0.1 | TaxiAuth | Taxi 2 autenticado
+2025-06-21 19:29:14 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-21 19:29:47 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-21 19:29:48 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-21 19:29:48 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-21 19:29:48 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-21 19:29:48 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-21 19:31:51 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:31:52 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-21 19:32:06 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-21 19:33:02 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-21 19:33:02 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-21 19:33:02 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-21 19:33:02 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-21 19:33:02 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-21 19:33:02 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-21 19:33:21 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:33:21 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-21 19:35:09 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:35:09 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-21 19:35:32 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-21 19:35:33 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-21 19:35:33 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-21 19:35:33 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-21 19:35:33 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-21 19:36:25 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-21 19:36:25 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030

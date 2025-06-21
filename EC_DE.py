@@ -130,7 +130,7 @@ def decrypt_message_aes_gcm(key, b64cipher):
         pt = aesgcm.decrypt(nonce, ct, None)
         return pt.decode()
     except Exception as e:
-        print(f"Error descifrando mensaje: {e}")
+        print(f"EC_DE Error descifrando mensaje: {e}")
         return None
 
 estado = ""
