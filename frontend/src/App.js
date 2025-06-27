@@ -144,13 +144,28 @@ function App() {
 
         if (val !== 0) {
           if (typeof val === "string") {
-            if (val.match(/[a-z]/)) {
+            if (val.length > 1) {
+              const taxi = taxisData.find((t) => t[0] === parseInt(val[0], 10));
+              let className = "";
+              if (taxi && taxi[1].startsWith("OK")) {
+                className = "taxi-ok-moving";
+              } else {
+                className = "taxi-busy";
+              }
+              animatedItems.push({
+                id: val,
+                x,
+                y,
+                content: val.toLowerCase(),
+                className: className,
+              });
+            } else if (val.match(/[a-z]/)) {
               cellClass += " has-customer";
               animatedItems.push({
                 id: val,
                 x,
                 y,
-                content: val,
+                content: val.toLowerCase(),
                 className: "customer",
               });
             } else {
@@ -167,18 +182,21 @@ function App() {
             const taxi = taxisData.find((t) => t[0] === val);
             if (taxi) {
               const status = taxi[1];
-              const className =
-                status === "OK"
-                  ? "taxi-ok"
-                  : status === "BUSY"
-                  ? "taxi-busy"
-                  : "taxi-unauthorized";
+              const isMoving = status.startsWith("OK");
+              const className = isMoving
+                ? "taxi-ok-moving"
+                : status === "OK"
+                ? "taxi-ok"
+                : status === "BUSY"
+                ? "taxi-busy"
+                : "taxi-unauthorized";
               animatedItems.push({
                 id: val,
                 x,
                 y,
-                content: `T${val}`,
+                content: `${val}`,
                 className,
+                isMoving,
               });
             }
           }
@@ -201,6 +219,7 @@ function App() {
             y={item.y}
             content={item.content}
             className={item.className}
+            isMoving={item.isMoving}
           />
         ))}
       </>

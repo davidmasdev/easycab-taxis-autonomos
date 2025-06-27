@@ -134,6 +134,9 @@ def main():
     # Params
     listenPort = sys.argv[1] if len(sys.argv) > 1 else "3030"
     dataBroker = sys.argv[2] if len(sys.argv) > 2 else "localhost:9092"
+    # CTC
+    ctcAddress = sys.argv[3] if len(sys.argv) > 3 else "localhost:5050"
+
     # Parámetros para MySQL
     mysql_host = sys.argv[3] if len(sys.argv) > 3 else "localhost"
     mysql_database = sys.argv[4] if len(sys.argv) > 4 else "easycab"
@@ -307,7 +310,7 @@ def main():
         changeState = False
         if time.time() - lastApiCall >= 10:
             try:
-                response = requests.get("http://localhost:5050/estado")
+                response = requests.get(f'http://{ctcAddress}/estado')
                 if response.ok:
                     data = response.json()
                     if cityState != data['estado']:
