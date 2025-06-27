@@ -196,6 +196,27 @@ def main():
     font = pygame.font.SysFont('arial', 24)
     running = True
 
+    # --- Variables para el menú interactivo ---
+    menu_open = False
+    menu_step = 0  # 0: acción, 1: taxi, 2: destino
+    menu_actions = [
+        "Detener taxi",
+        "Reanudar taxi",
+        "Enviar taxi a destino",
+        "Enviar taxi a base",
+        "Cancelar"
+    ]
+    menu_selected = 0
+    taxi_selected = 0
+    destino_selected = 0
+    menu_error = ""
+    menu_success = ""
+    selected_action = None
+    selected_taxi = None
+    selected_destino = None
+    menu_show_timer = 0
+    # --- Fin variables menú ---
+
     # Kafka Producer
     try:
         producer = KafkaProducer(bootstrap_servers=dataBroker)
@@ -240,69 +261,99 @@ def main():
                 running = False
                 audit_event('Shutdown', 'Aplicación cerrada por usuario')
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:  # Press 'P' to stop a taxi
-                    try:
-                        taxi_id = int(input("Ingrese el ID del taxi a detener: "))
-                        cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('KO', taxi_id))
-                        print(f"Taxi {taxi_id} ha sido detenido.")
-                        audit_event('TaxiStop', f'Taxi {taxi_id} detenido')
-                    except ValueError:
-                        print("ID inválido")
-                        audit_event('InputError', 'ID inválido al detener taxi')
-                    except Error as e:
-                        print(f"Error actualizando taxi: {e}")
-                        audit_event('DBError', f'Error actualizando taxi: {e}')
-                elif event.key == pygame.K_r:  # Press 'R' to resume a taxi
-                    try:
-                        taxi_id = int(input("Ingrese el ID del taxi a reanudar: "))
-                        cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('OK', taxi_id))
-                        print(f"Taxi {taxi_id} ha reanudado el servicio.")
-                        audit_event('TaxiResume', f'Taxi {taxi_id} reanudado')
-                    except ValueError:
-                        print("ID inválido")
-                        audit_event('InputError', 'ID inválido al reanudar taxi')
-                    except Error as e:
-                        print(f"Error actualizando taxi: {e}")
-                        audit_event('DBError', f'Error actualizando taxi: {e}')
-                elif event.key == pygame.K_d:  # Press 'D' to send a taxi to a destination
-                    try:
-                        taxi_id = int(input("Ingrese el ID del taxi: "))
-                        new_destination = input("Ingrese el nuevo destino (Letra mayúscula): ")
-                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', (str(new_destination), taxi_id))
-                        print(f"Taxi {taxi_id} ahora se dirige a {new_destination}.")
-                        audit_event('TaxiDestination', f'Taxi {taxi_id} enviado a {new_destination}')
-                    except ValueError:
-                        print("ID inválido")
-                        audit_event('InputError', 'ID inválido al asignar destino taxi')
-                    except Error as e:
-                        print(f"Error actualizando taxi: {e}")
-                        audit_event('DBError', f'Error actualizando taxi: {e}')
-                elif event.key == pygame.K_b:  # Press 'B' to send a taxi back to base
-                    try:
-                        taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
-                        if producer and str(taxi_id) in taxi_keys:
-                            b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi_id)], f'volver base')
-                            topic = f'centralTaxi-{taxi_id}'
-                            producer.send(topic, b64cipher.encode())
-                            print(f"Taxi {taxi_id} está volviendo a la base.")
-                            audit_event('TaxiBase', f'Taxi {taxi_id} enviado a base')
-                        cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', 
-                                   ('', 'OK. Volver a base', taxi_id))
-                        # Invalidar token
-                        taxi_tokens.pop(str(taxi_id), None)
-                    except ValueError:
-                        print("ID inválido")
-                        audit_event('InputError', 'ID inválido al enviar taxi a base')
-                    except Error as e:
-                        print(f"Error actualizando taxi en base: {e}")
-                        audit_event('DBError', f'Error actualizando taxi en base: {e}')
-                    
-                    try:
-                        taxi_id = int(input("Ingrese el ID del taxi a enviar a la base: "))
-                        cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', taxi_id))
-                    except Error as e:
-                        print(f"Error actualizando taxi: {e}")
-
+                if not menu_open and event.key == pygame.K_m:
+                    menu_open = True
+                    menu_step = 0
+                    menu_selected = 0
+                    taxi_selected = 0
+                    destino_selected = 0
+                    menu_error = ""
+                    menu_success = ""
+                    selected_action = None
+                    selected_taxi = None
+                    selected_destino = None
+                elif menu_open:
+                    if menu_step == 0:
+                        # Selección de acción
+                        if event.key == pygame.K_UP:
+                            menu_selected = (menu_selected - 1) % len(menu_actions)
+                        elif event.key == pygame.K_DOWN:
+                            menu_selected = (menu_selected + 1) % len(menu_actions)
+                        elif event.key == pygame.K_RETURN:
+                            selected_action = menu_actions[menu_selected]
+                            if selected_action == "Cancelar":
+                                menu_open = False
+                            elif selected_action in ["Detener taxi", "Reanudar taxi", "Enviar taxi a destino", "Enviar taxi a base"]:
+                                menu_step = 1
+                                taxi_selected = 0
+                        elif event.key == pygame.K_ESCAPE:
+                            menu_open = False
+                    elif menu_step == 1:
+                        # Selección de taxi
+                        if len(taxis) == 0:
+                            menu_error = "No hay taxis disponibles."
+                            menu_step = 0
+                        else:
+                            if event.key == pygame.K_UP:
+                                taxi_selected = (taxi_selected - 1) % len(taxis)
+                            elif event.key == pygame.K_DOWN:
+                                taxi_selected = (taxi_selected + 1) % len(taxis)
+                            elif event.key == pygame.K_RETURN:
+                                selected_taxi = taxis[taxi_selected][0]
+                                if selected_action == "Enviar taxi a destino":
+                                    menu_step = 2
+                                    destino_selected = 0
+                                else:
+                                    # Ejecutar acción de detener, reanudar o enviar a base
+                                    try:
+                                        if selected_action == "Detener taxi":
+                                            cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('KO', selected_taxi))
+                                            menu_success = f"Taxi {selected_taxi} ha sido detenido."
+                                            audit_event('TaxiStop', f'Taxi {selected_taxi} detenido')
+                                        elif selected_action == "Reanudar taxi":
+                                            cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('OK', selected_taxi))
+                                            menu_success = f"Taxi {selected_taxi} ha reanudado el servicio."
+                                            audit_event('TaxiResume', f'Taxi {selected_taxi} reanudado')
+                                        elif selected_action == "Enviar taxi a base":
+                                            if producer and str(selected_taxi) in taxi_keys:
+                                                b64cipher = encrypt_message_aes_gcm(taxi_keys[str(selected_taxi)], f'volver base')
+                                                topic = f'centralTaxi-{selected_taxi}'
+                                                producer.send(topic, b64cipher.encode())
+                                                audit_event('TaxiBase', f'Taxi {selected_taxi} enviado a base')
+                                            cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', ('', 'OK. Volver a base', selected_taxi))
+                                            taxi_tokens.pop(str(selected_taxi), None)
+                                            cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', selected_taxi))
+                                            menu_success = f"Taxi {selected_taxi} está volviendo a la base."
+                                        menu_show_timer = time.time()
+                                        menu_open = False
+                                    except Error as e:
+                                        menu_error = f"Error actualizando taxi: {e}"
+                                        audit_event('DBError', f'Error actualizando taxi: {e}')
+                            elif event.key == pygame.K_ESCAPE:
+                                menu_step = 0
+                    elif menu_step == 2:
+                        # Selección de destino
+                        if len(locations) == 0:
+                            menu_error = "No hay destinos disponibles."
+                            menu_step = 1
+                        else:
+                            if event.key == pygame.K_UP:
+                                destino_selected = (destino_selected - 1) % len(locations)
+                            elif event.key == pygame.K_DOWN:
+                                destino_selected = (destino_selected + 1) % len(locations)
+                            elif event.key == pygame.K_RETURN:
+                                selected_destino = locations[destino_selected][0]
+                                try:
+                                    cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', (str(selected_destino), selected_taxi))
+                                    menu_success = f"Taxi {selected_taxi} ahora se dirige a {selected_destino}."
+                                    audit_event('TaxiDestination', f'Taxi {selected_taxi} enviado a {selected_destino}')
+                                    menu_show_timer = time.time()
+                                    menu_open = False
+                                except Error as e:
+                                    menu_error = f"Error actualizando taxi: {e}"
+                                    audit_event('DBError', f'Error actualizando taxi: {e}')
+                            elif event.key == pygame.K_ESCAPE:
+                                menu_step = 1
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
@@ -589,6 +640,48 @@ def main():
             except Exception as e:
                 print(f"Error enviando mensajes Kafka: {e}")
         
+        # --- Renderizar menú interactivo si está abierto ---
+        if menu_open:
+            menu_panel_rect = pygame.Rect(200, 100, screen.get_width() - 400, screen.get_height() - 200)
+            pygame.draw.rect(screen, "#222244", menu_panel_rect, border_radius=12)
+            pygame.draw.rect(screen, "white", menu_panel_rect, width=3, border_radius=12)
+            menu_font = pygame.font.SysFont('arial', 32, bold=True)
+            small_font = pygame.font.SysFont('arial', 24)
+            y = menu_panel_rect.top + 40
+            x = menu_panel_rect.left + 40
+            if menu_step == 0:
+                screen.blit(menu_font.render("Selecciona una acción:", True, "white"), (x, y))
+                y += 60
+                for i, action in enumerate(menu_actions):
+                    color = "yellow" if i == menu_selected else "white"
+                    screen.blit(small_font.render(action, True, color), (x, y))
+                    y += 40
+            elif menu_step == 1:
+                screen.blit(menu_font.render(f"Selecciona un taxi para '{selected_action}':", True, "white"), (x, y))
+                y += 60
+                for i, taxi in enumerate(taxis):
+                    taxi_str = f"ID: {taxi[0]} Estado: {taxi[1]} Destino: {taxi[4]}"
+                    color = "yellow" if i == taxi_selected else "white"
+                    screen.blit(small_font.render(taxi_str, True, color), (x, y))
+                    y += 40
+            elif menu_step == 2:
+                screen.blit(menu_font.render(f"Selecciona destino para taxi {selected_taxi}:", True, "white"), (x, y))
+                y += 60
+                for i, destino in enumerate(locations):
+                    destino_str = f"{destino[0]} ({destino[1][0]}, {destino[1][1]})"
+                    color = "yellow" if i == destino_selected else "white"
+                    screen.blit(small_font.render(destino_str, True, color), (x, y))
+                    y += 40
+            # Mensaje de error o éxito
+            if menu_error:
+                screen.blit(small_font.render(menu_error, True, "red"), (x, menu_panel_rect.bottom - 80))
+            if menu_success:
+                screen.blit(small_font.render(menu_success, True, "green"), (x, menu_panel_rect.bottom - 50))
+            pygame.display.flip()
+            clock.tick(60)
+            continue  # Saltar el resto del renderizado si el menú está abierto
+        # --- Fin renderizado menú ---
+
         # RENDER GAME
         grid_width = 20 * (WIDTH + MARGIN) + MARGIN
         grid_height = 20 * (HEIGHT + MARGIN) + MARGIN
