@@ -181,8 +181,8 @@ def main():
     
     # Esperar un poco para que el servidor se inicie
     time.sleep(2)
-    print(f"\n✅ Servidor Flask iniciado en http://localhost:5050")
-    print("📡 Puedes usar los endpoints web Y la consola interactiva")
+    print(f"\nServidor Flask iniciado en http://localhost:5050")
+    print("Puedes usar los endpoints web Y la consola interactiva")
     
     # Ejecutar la consola interactiva en el hilo principal
     console_interface()

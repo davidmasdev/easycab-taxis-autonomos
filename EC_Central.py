@@ -138,11 +138,11 @@ def main():
     ctcAddress = sys.argv[3] if len(sys.argv) > 3 else "localhost:5050"
 
     # Parámetros para MySQL
-    mysql_host = sys.argv[3] if len(sys.argv) > 3 else "localhost"
-    mysql_database = sys.argv[4] if len(sys.argv) > 4 else "easycab"
-    mysql_user = sys.argv[5] if len(sys.argv) > 5 else "easycab_user"
-    mysql_password = sys.argv[6] if len(sys.argv) > 6 else "Easycab23!"
-    locationParam = sys.argv[7] if len(sys.argv) > 7 else "mapa.txt"
+    mysql_host = sys.argv[4] if len(sys.argv) > 4 else "localhost"
+    mysql_database = sys.argv[5] if len(sys.argv) > 5 else "easycab"
+    mysql_user = sys.argv[6] if len(sys.argv) > 6 else "easycab_user"
+    mysql_password = sys.argv[7] if len(sys.argv) > 7 else "Easycab23!"
+    locationParam = sys.argv[8] if len(sys.argv) > 8 else "mapa.txt"
 
     # Iniciar Flask en un hilo separado
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
