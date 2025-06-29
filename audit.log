@@ -2136,3 +2136,324 @@
 2025-06-29 21:29:25 | 172.19.54.229 | SocketClose | Socket cerrado
 2025-06-29 21:29:25 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
 2025-06-29 21:29:25 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 21:50:15 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:50:15 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:50:32 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 21:50:47 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 21:53:47 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:53:47 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:54:13 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 21:54:35 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 21:57:03 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:57:03 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:57:28 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 21:58:18 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:58:18 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:58:23 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 21:58:35 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 21:58:35 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 21:58:35 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 21:58:35 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 21:58:35 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:00:31 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:00:32 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:00:36 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:00:48 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:01:48 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:01:48 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:01:54 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:02:00 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:03:17 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:03:17 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:03:22 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:03:37 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:03:37 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:03:37 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:03:37 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:03:37 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:03:49 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:03:49 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:03:51 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:03:57 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:04:34 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:04:37 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:04:42 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OKOKOK
+2025-06-29 22:04:49 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:04:49 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:04:49 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:04:49 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:04:49 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:05:26 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:05:26 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:05:35 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:05:39 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:05:43 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [6, 19]
+2025-06-29 22:05:47 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:06:04 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:06:35 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 22:06:41 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:06:41 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:06:41 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:06:41 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:06:41 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:09:44 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:09:44 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:09:49 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:09:54 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:09:57 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [3, 0]
+2025-06-29 22:10:01 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:10:05 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 1]
+2025-06-29 22:10:06 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 2]
+2025-06-29 22:10:07 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:10:11 | 172.19.54.229 | ServiceAssigned | Servicio a a C asignado al taxi 1
+2025-06-29 22:10:12 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 3]
+2025-06-29 22:10:13 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 4]
+2025-06-29 22:10:16 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-29 22:10:17 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 6]
+2025-06-29 22:10:18 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:10:18 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:10:18 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:10:18 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:10:18 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:10:53 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:10:53 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:10:57 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:11:01 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:11:04 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [0, 3]
+2025-06-29 22:11:08 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:11:12 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [1, 2]
+2025-06-29 22:11:13 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [2, 2]
+2025-06-29 22:11:14 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [3, 2]
+2025-06-29 22:11:15 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 2]
+2025-06-29 22:11:16 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:11:22 | 172.19.54.229 | ServiceAssigned | Servicio a a C asignado al taxi 1
+2025-06-29 22:11:23 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 3]
+2025-06-29 22:11:24 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 4]
+2025-06-29 22:11:25 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-29 22:11:26 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 6]
+2025-06-29 22:11:27 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 7]
+2025-06-29 22:11:28 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 8]
+2025-06-29 22:11:29 | 172.19.54.229 | TaxiStop | Taxi 1 detenido
+2025-06-29 22:11:35 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 22:11:35 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 9]
+2025-06-29 22:11:36 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 10]
+2025-06-29 22:11:37 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 11]
+2025-06-29 22:11:38 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 12]
+2025-06-29 22:11:39 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 13]
+2025-06-29 22:11:40 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:12:07 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 22:19:43 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:19:43 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:19:43 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:19:43 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:19:43 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:19:57 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:19:57 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:19:59 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:20:02 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:20:05 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:20:53 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:20:53 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:20:53 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:20:53 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:20:53 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:20:58 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:20:58 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:21:00 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:21:05 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:22:00 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:22:00 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:22:07 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:22:11 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:22:17 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [9, 11]
+2025-06-29 22:22:21 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:22:32 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 10]
+2025-06-29 22:22:33 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 9]
+2025-06-29 22:22:34 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 8]
+2025-06-29 22:22:35 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 7]
+2025-06-29 22:22:36 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:22:36 | 172.19.54.229 | DBError | Error actualizando taxi: 1146 (42S02): Table 'easycab.customers' doesn't exist
+2025-06-29 22:23:05 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:23:05 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:23:09 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:23:12 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:23:16 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [8, 6]
+2025-06-29 22:23:23 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:23:31 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-29 22:23:32 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 4]
+2025-06-29 22:23:33 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 3]
+2025-06-29 22:23:34 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:23:34 | 172.19.54.229 | DBError | Error actualizando taxi: 1146 (42S02): Table 'easycab.customer' doesn't exist
+2025-06-29 22:24:29 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:24:29 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:24:32 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:24:35 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:24:38 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [14, 18]
+2025-06-29 22:24:42 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:24:52 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:24:52 | 172.19.54.229 | DBError | Error actualizando taxi: 1146 (42S02): Table 'easycab.customer' doesn't exist
+2025-06-29 22:25:15 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:25:15 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:25:18 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:25:21 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:25:24 | 172.19.54.229 | CustomerCreate | Creado customer a] en posición [8, 3]
+2025-06-29 22:25:43 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:25:43 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:25:46 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:25:49 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:25:51 | 172.19.54.229 | CustomerCreate | Creado customer a] en posición [5, 0]
+2025-06-29 22:26:00 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:26:00 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:26:07 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:26:10 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:26:13 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [9, 16]
+2025-06-29 22:26:17 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:26:23 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:27:04 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:27:04 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:27:06 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:27:13 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:27:15 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [12, 5]
+2025-06-29 22:27:19 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:27:28 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:27:46 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 22:28:55 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:28:55 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:28:57 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:29:00 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:29:03 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [11, 16]
+2025-06-29 22:29:07 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:29:16 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 22:29:34 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 22:31:29 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:31:32 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:31:35 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:31:38 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:31:41 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [17, 8]
+2025-06-29 22:31:45 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:32:29 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:32:29 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:32:33 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:32:55 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:33:01 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 22:33:01 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 22:33:01 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 22:33:01 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 22:33:01 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 22:41:50 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 22:41:50 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 22:41:59 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 22:42:06 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 22:42:08 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [11, 0]
+2025-06-29 22:42:12 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 22:42:23 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 1]
+2025-06-29 22:42:23 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 2]
+2025-06-29 22:42:28 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 2]
+2025-06-29 22:42:29 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 2]
+2025-06-29 22:42:30 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 2]
+2025-06-29 22:42:31 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 2]
+2025-06-29 22:42:32 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 2]
+2025-06-29 22:42:33 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:42:37 | 172.19.54.229 | ServiceAssigned | Servicio a a C asignado al taxi 1
+2025-06-29 22:42:38 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 3]
+2025-06-29 22:42:39 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 4]
+2025-06-29 22:42:40 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-29 22:42:41 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 6]
+2025-06-29 22:42:42 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 7]
+2025-06-29 22:42:43 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 8]
+2025-06-29 22:42:44 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 9]
+2025-06-29 22:42:45 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 10]
+2025-06-29 22:42:46 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 11]
+2025-06-29 22:42:47 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 12]
+2025-06-29 22:42:48 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 13]
+2025-06-29 22:42:49 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 14]
+2025-06-29 22:42:50 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 15]
+2025-06-29 22:42:51 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:42:55 | 172.19.54.229 | ServiceAssigned | Servicio a a F asignado al taxi 1
+2025-06-29 22:42:56 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 14]
+2025-06-29 22:42:56 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 13]
+2025-06-29 22:43:01 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 12]
+2025-06-29 22:43:02 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 11]
+2025-06-29 22:43:03 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 10]
+2025-06-29 22:43:04 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 9]
+2025-06-29 22:43:05 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 8]
+2025-06-29 22:43:06 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 7]
+2025-06-29 22:43:07 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 6]
+2025-06-29 22:43:08 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 5]
+2025-06-29 22:43:09 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 4]
+2025-06-29 22:43:10 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:43:14 | 172.19.54.229 | ServiceAssigned | Servicio a a D asignado al taxi 1
+2025-06-29 22:43:15 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 5]
+2025-06-29 22:43:16 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 6]
+2025-06-29 22:43:17 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 7]
+2025-06-29 22:43:18 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 8]
+2025-06-29 22:43:19 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [15, 9]
+2025-06-29 22:43:20 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 10]
+2025-06-29 22:43:21 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 11]
+2025-06-29 22:43:22 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 12]
+2025-06-29 22:43:23 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 13]
+2025-06-29 22:43:24 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 14]
+2025-06-29 22:43:25 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 15]
+2025-06-29 22:43:26 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:43:30 | 172.19.54.229 | ServiceAssigned | Servicio a a E asignado al taxi 1
+2025-06-29 22:43:33 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [17, 14]
+2025-06-29 22:43:34 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [18, 13]
+2025-06-29 22:43:35 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [18, 12]
+2025-06-29 22:43:36 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [18, 11]
+2025-06-29 22:43:37 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [18, 10]
+2025-06-29 22:43:38 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [18, 9]
+2025-06-29 22:43:39 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 22:43:39 | 172.19.54.229 | CustomerEnd | Customer a ha terminado todos los servicios
+2025-06-29 23:00:01 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 23:01:44 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 23:01:44 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 23:01:48 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 23:01:51 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 23:01:56 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [5, 12]
+2025-06-29 23:02:00 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:02:12 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 23:02:20 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:02:28 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:02:39 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:02:43 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 23:02:47 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:04:58 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 23:04:58 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 23:05:08 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 23:05:12 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 23:05:16 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [8, 14]
+2025-06-29 23:05:23 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:05:38 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 13]
+2025-06-29 23:05:39 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 12]
+2025-06-29 23:05:40 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 11]
+2025-06-29 23:05:41 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 10]
+2025-06-29 23:05:41 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 23:05:49 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:06:00 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:06:04 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 23:06:08 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:12:17 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 23:12:17 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 23:12:20 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 23:12:24 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 23:12:30 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [8, 19]
+2025-06-29 23:12:34 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:12:45 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 23:12:53 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:13:04 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:13:12 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:13:26 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 23:13:26 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 23:13:29 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 23:13:37 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 23:13:40 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [12, 0]
+2025-06-29 23:13:44 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 23:13:53 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
+2025-06-29 23:13:55 | 172.19.54.229 | ServiceDenied | Servicio denegado para a a A
+2025-06-29 23:14:08 | 172.19.54.229 | TaxiResume | Taxi 1 reanudado
+2025-06-29 23:14:10 | 172.19.54.229 | ServiceAssigned | Servicio a a E asignado al taxi 1
+2025-06-29 23:14:22 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 23:14:22 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 23:14:22 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 23:14:22 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 23:14:22 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado

@@ -126,6 +126,17 @@ audit_logger.propagate = False  # Para que no duplique mensajes en el logger glo
 def audit_event(action, description, ip=None):
     if ip is None:
         ip = get_local_ip()
+    
+    # Añadir prefijos especiales para eventos de restauración
+    if "recovery" in action.lower() or "restore" in action.lower() or "reconnect" in action.lower():
+        print(f"[RESTORATION] {description}")
+        # Añadir prefijo especial para auditoría de restauración
+        action = f"RESTORATION_{action}"
+    elif "error" in action.lower() or "fail" in action.lower():
+        print(f"[ERROR] {description}")
+    else:
+        print(f"[INFO] {description}")
+    
     audit_logger.info('', extra={'ip': ip, 'action': action, 'description': description})
 
 def main():
@@ -202,7 +213,7 @@ def main():
     menu_actions = [
         "Detener taxi",
         "Reanudar taxi",
-        "Enviar taxi a destino",
+        # "Enviar taxi a destino",
         "Enviar taxi a base",
         "Cancelar"
     ]
@@ -312,6 +323,12 @@ def main():
                                             audit_event('TaxiStop', f'Taxi {selected_taxi} detenido')
                                         elif selected_action == "Reanudar taxi":
                                             cur.execute('UPDATE taxis SET estado = %s WHERE id = %s', ('OK', selected_taxi))
+                                            for taxi in taxis:
+                                                if selected_taxi == taxi[0] and str(taxi[0]) in taxi_keys:
+                                                    b64cipher = encrypt_message_aes_gcm(taxi_keys[str(taxi[0])], f'reanudar servicios')
+                                                    topic = f'centralTaxi-{taxi[0]}'
+                                                    if producer:
+                                                        producer.send(topic, b64cipher.encode())
                                             menu_success = f"Taxi {selected_taxi} ha reanudado el servicio."
                                             audit_event('TaxiResume', f'Taxi {selected_taxi} reanudado')
                                         elif selected_action == "Enviar taxi a base":
@@ -320,9 +337,30 @@ def main():
                                                 topic = f'centralTaxi-{selected_taxi}'
                                                 producer.send(topic, b64cipher.encode())
                                                 audit_event('TaxiBase', f'Taxi {selected_taxi} enviado a base')
+                                            
+                                            # Obtener el destino actual del taxi y el customer que transporta
+                                            cur.execute('SELECT destino, estado FROM taxis WHERE id = %s', (selected_taxi,))
+                                            taxi_info = cur.fetchone()
+                                            taxi_destino = taxi_info[0] if taxi_info else None
+                                            taxi_estado = taxi_info[1] if taxi_info else None
+                                            # Extraer el customer del estado del taxi (formato: "OK. Servicio a {customer}")
+                                            if taxi_estado:
+                                                taxi_customer = taxi_estado.split("OK. Servicio ")[1] if "OK. Servicio " in taxi_estado else None
+                                            else:
+                                                taxi_customer = None
+
+                                            print(f'taxi_customer: {taxi_customer}')
+
+                                            if producer and taxi_customer:
+                                                producer.send('centralCustomer', (f'denegacion {taxi_customer} {taxi_destino} de servicio').encode())
+                                            for customer in customers:
+                                                if customer[0] == taxi_customer:
+                                                    customer[1] = ''  # servicio
+                                                    break
                                             cur.execute('UPDATE taxis SET destino = %s, estado = %s WHERE id = %s', ('', 'OK. Volver a base', selected_taxi))
+                                            
                                             taxi_tokens.pop(str(selected_taxi), None)
-                                            cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', selected_taxi))
+                                            # cur.execute('UPDATE taxis SET destino = %s WHERE id = %s', ('[0,0]', selected_taxi))
                                             menu_success = f"Taxi {selected_taxi} está volviendo a la base."
                                         menu_show_timer = time.time()
                                         menu_open = False
