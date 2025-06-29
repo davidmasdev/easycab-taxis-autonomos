@@ -2125,3 +2125,14 @@
 2025-06-29 21:23:25 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
 2025-06-29 21:23:43 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
 2025-06-29 21:23:43 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:27:23 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:27:23 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:28:21 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:28:21 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:29:09 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:29:09 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:29:25 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 21:29:25 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 21:29:25 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 21:29:25 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 21:29:25 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
