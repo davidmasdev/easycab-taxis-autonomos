@@ -2035,3 +2035,93 @@
 2025-06-28 12:15:24 | 172.19.54.229 | CustomerEnd | Customer a ha terminado todos los servicios
 2025-06-28 12:15:35 | 172.19.54.229 | TaxiBase | Taxi 1 enviado a base
 2025-06-28 12:15:54 | 172.19.54.229 | TaxiDestination | Taxi 1 enviado a F
+2025-06-29 12:07:53 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 12:07:57 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 12:08:29 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 12:08:40 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 12:09:10 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 12:09:10 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 12:09:37 | 127.0.0.1 | TaxiAuth | Taxi 1 autenticado
+2025-06-29 12:09:44 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK
+2025-06-29 12:09:45 | 172.19.54.229 | CustomerCreate | Creado customer a en posición [15, 13]
+2025-06-29 12:09:49 | 172.19.54.229 | ServiceAssigned | Servicio a a A asignado al taxi 1
+2025-06-29 12:10:05 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 12]
+2025-06-29 12:10:06 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 11]
+2025-06-29 12:10:07 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 10]
+2025-06-29 12:10:08 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 9]
+2025-06-29 12:10:09 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 8]
+2025-06-29 12:10:10 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 7]
+2025-06-29 12:10:13 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 6]
+2025-06-29 12:10:14 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 5]
+2025-06-29 12:10:15 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 5]
+2025-06-29 12:10:16 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a KO. Servicio a
+2025-06-29 12:10:16 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 5]
+2025-06-29 12:10:20 | 172.19.54.229 | TaxiStateChange | Taxi 1 cambió estado a OK. Servicio a
+2025-06-29 12:10:21 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 5]
+2025-06-29 12:10:22 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [3, 5]
+2025-06-29 12:10:23 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:10:27 | 172.19.54.229 | ServiceAssigned | Servicio a a B asignado al taxi 1
+2025-06-29 12:10:28 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [4, 4]
+2025-06-29 12:10:29 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 3]
+2025-06-29 12:10:30 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 2]
+2025-06-29 12:10:31 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 2]
+2025-06-29 12:10:32 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 2]
+2025-06-29 12:10:33 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 2]
+2025-06-29 12:10:34 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 2]
+2025-06-29 12:10:35 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 2]
+2025-06-29 12:10:36 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:10:40 | 172.19.54.229 | ServiceAssigned | Servicio a a C asignado al taxi 1
+2025-06-29 12:10:41 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 3]
+2025-06-29 12:10:42 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 4]
+2025-06-29 12:10:46 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 5]
+2025-06-29 12:10:47 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [15, 6]
+2025-06-29 12:10:48 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 7]
+2025-06-29 12:10:49 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 8]
+2025-06-29 12:10:50 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:10:54 | 172.19.54.229 | ServiceAssigned | Servicio a a E asignado al taxi 1
+2025-06-29 12:10:55 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [15, 9]
+2025-06-29 12:10:56 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 10]
+2025-06-29 12:11:33 | 172.19.54.229 | ServiceAssigned | Servicio a a E asignado al taxi 1
+2025-06-29 12:11:48 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 11]
+2025-06-29 12:11:52 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 12]
+2025-06-29 12:11:53 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 13]
+2025-06-29 12:11:54 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 14]
+2025-06-29 12:11:55 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 15]
+2025-06-29 12:11:56 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 16]
+2025-06-29 12:11:57 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 17]
+2025-06-29 12:11:58 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 18]
+2025-06-29 12:11:59 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 19]
+2025-06-29 12:12:00 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:12:04 | 172.19.54.229 | ServiceAssigned | Servicio a a D asignado al taxi 1
+2025-06-29 12:12:05 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 18]
+2025-06-29 12:12:06 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 17]
+2025-06-29 12:12:07 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 17]
+2025-06-29 12:12:08 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 17]
+2025-06-29 12:12:09 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [15, 17]
+2025-06-29 12:12:10 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [16, 17]
+2025-06-29 12:12:11 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:12:15 | 172.19.54.229 | ServiceAssigned | Servicio a a F asignado al taxi 1
+2025-06-29 12:12:16 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [15, 16]
+2025-06-29 12:12:17 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [14, 15]
+2025-06-29 12:12:18 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [13, 14]
+2025-06-29 12:12:19 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [12, 13]
+2025-06-29 12:12:20 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [11, 12]
+2025-06-29 12:12:21 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [10, 11]
+2025-06-29 12:12:24 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [9, 11]
+2025-06-29 12:12:25 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [8, 11]
+2025-06-29 12:12:26 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [7, 11]
+2025-06-29 12:12:27 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [6, 11]
+2025-06-29 12:12:28 | 172.19.54.229 | TaxiMove | Taxi 1 movido a [5, 11]
+2025-06-29 12:12:29 | 172.19.54.229 | ServiceEnd | Servicio a terminado por taxi 1
+2025-06-29 12:12:29 | 172.19.54.229 | CustomerEnd | Customer a ha terminado todos los servicios
+2025-06-29 12:42:49 | 172.19.54.229 | Shutdown | Aplicación cerrada por usuario
+2025-06-29 12:42:49 | 172.19.54.229 | DBClose | Conexión MySQL cerrada
+2025-06-29 12:42:49 | 172.19.54.229 | SocketClose | Socket cerrado
+2025-06-29 12:42:49 | 172.19.54.229 | KafkaProducerClose | Kafka Producer cerrado
+2025-06-29 12:42:49 | 172.19.54.229 | KafkaConsumerClose | Kafka Consumer cerrado
+2025-06-29 21:22:28 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:22:29 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:23:25 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:23:25 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030
+2025-06-29 21:23:43 | 172.19.54.229 | FlaskStart | API Flask iniciada en http://localhost:7070
+2025-06-29 21:23:43 | 172.19.54.229 | SocketStart | Socket servidor iniciado en puerto 3030

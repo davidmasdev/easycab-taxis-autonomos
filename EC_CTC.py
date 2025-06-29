@@ -3,12 +3,17 @@ import threading
 import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuración
-API_KEY = "7f49d719db92256be845cf81ab1a59f6"
+
+
+load_dotenv()
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
 city = "Madrid"
 state = "OK"
 server_running = False
