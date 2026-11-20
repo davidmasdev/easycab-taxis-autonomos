@@ -48,3 +48,7 @@ frontend-audit/.env.production.local
 frontend-audit/npm-debug.log*
 frontend-audit/yarn-debug.log*
 frontend-audit/yarn-error.log*
+
+# Local configuration and runtime output
+.env
+audit.log
